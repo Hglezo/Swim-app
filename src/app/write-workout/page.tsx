@@ -220,7 +220,7 @@ const WriteWorkoutPage: React.FC = () => {
                         type="number"
                         value={set.distance}
                         onChange={(e) => updateSet(section.id, set.id, 'distance', parseInt(e.target.value))}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                        className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-teal-500 focus:ring-teal-500 hover:border-gray-400 transition-colors"
                       />
                     </div>
                     <div>
@@ -229,7 +229,7 @@ const WriteWorkoutPage: React.FC = () => {
                         type="number"
                         value={set.repetitions}
                         onChange={(e) => updateSet(section.id, set.id, 'repetitions', parseInt(e.target.value))}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                        className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-teal-500 focus:ring-teal-500 hover:border-gray-400 transition-colors"
                       />
                     </div>
                     <div>
@@ -237,7 +237,7 @@ const WriteWorkoutPage: React.FC = () => {
                       <select
                         value={set.type}
                         onChange={(e) => updateSet(section.id, set.id, 'type', e.target.value)}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                        className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-teal-500 focus:ring-teal-500 hover:border-gray-400 transition-colors"
                       >
                         <option value="freestyle">Freestyle</option>
                         <option value="backstroke">Backstroke</option>
@@ -253,7 +253,7 @@ const WriteWorkoutPage: React.FC = () => {
                       <select
                         value={set.intensity}
                         onChange={(e) => updateSet(section.id, set.id, 'intensity', e.target.value)}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                        className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-teal-500 focus:ring-teal-500 hover:border-gray-400 transition-colors"
                       >
                         <option value="easy">Easy</option>
                         <option value="moderate">Moderate</option>
@@ -267,8 +267,8 @@ const WriteWorkoutPage: React.FC = () => {
                         type="text"
                         value={set.description}
                         onChange={(e) => updateSet(section.id, set.id, 'description', e.target.value)}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
-                        placeholder="Optional notes"
+                        className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-teal-500 focus:ring-teal-500 hover:border-gray-400 transition-colors"
+                        placeholder="Add notes or instructions..."
                       />
                     </div>
                   </div>
