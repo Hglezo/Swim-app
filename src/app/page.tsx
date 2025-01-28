@@ -111,7 +111,7 @@ export default function Home() {
               </div>
             </div>
             <h2 className="text-4xl font-bold text-center mb-4 text-gray-900">Contact Us</h2>
-            <p className="text-xl text-center mb-12 text-gray-600">Have questions? We'd love to hear from you!</p>
+            <p className="text-xl text-center mb-12 text-gray-600">Have questions? We&apos;d love to hear from you!</p>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="p-8 rounded-xl bg-teal-50 hover:bg-teal-100 transition-colors h-[160px] flex flex-col justify-center items-center">
                 <p className="font-semibold text-lg text-gray-900 mb-3">Email</p>

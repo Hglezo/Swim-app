@@ -178,7 +178,7 @@ const InsightsPage: React.FC = () => {
             <div className="space-y-4">
               <div className="p-4 bg-purple-50 rounded-lg">
                 <h3 className="font-medium text-purple-800 mb-2">Consistency</h3>
-                <p className="text-purple-700">You've maintained a consistent training schedule with regular workouts throughout the week.</p>
+                <p className="text-purple-700">You&apos;ve maintained a consistent training schedule with regular workouts throughout the week.</p>
               </div>
               <div className="p-4 bg-orange-50 rounded-lg">
                 <h3 className="font-medium text-orange-800 mb-2">Peak Performance</h3>

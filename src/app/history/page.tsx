@@ -247,14 +247,15 @@ export default function CalendarPage() {
     const averageMeters = Math.round(totalMeters / totalWorkouts);
     const averageDuration = Math.round(totalDuration / totalWorkouts);
 
-    return { 
-      longestDay, 
-      shortestDay, 
-      averageMeters, 
-      totalDuration,
+    return {
+      longestDay,
+      shortestDay,
       longestTimeDay,
       shortestTimeDay,
-      averageDuration
+      averageMeters,
+      averageDuration,
+      totalWorkouts,
+      totalMeters
     };
   };
 
@@ -262,11 +263,9 @@ export default function CalendarPage() {
     longestDay, 
     shortestDay, 
     averageMeters, 
-    totalDuration,
     longestTimeDay,
     shortestTimeDay,
-    averageDuration
-  } = getWorkoutStats();
+    averageDuration  } = getWorkoutStats();
 
   // Helper function to get month week number (1-5)
   const getMonthWeekNumber = (date: Date) => {
@@ -305,26 +304,11 @@ export default function CalendarPage() {
   const weeklyStats = getWeeklyStats();
 
   // View switching handlers
-  const handleViewChange = (view: CalendarView) => {
-    if (view === 'today') {
-      setCurrentDate(new Date());
-      setCurrentView('day');
-    } else {
-      setCurrentView(view);
-    }
+  const handleViewChange = (newView: CalendarView) => {
+    setCurrentView(newView);
   };
 
   // Helper function to get ISO week number
-  const getISOWeek = (date: Date) => {
-    const d = new Date(date);
-    d.setHours(0, 0, 0, 0);
-    // Thursday in current week decides the year
-    d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
-    // January 4 is always in week 1
-    const week1 = new Date(d.getFullYear(), 0, 4);
-    // Adjust to Thursday in week 1 and count number of weeks from date to week1
-    return 1 + Math.round(((d.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
-  };
 
   // Helper function to format display text based on view
   const getDisplayText = () => {
@@ -385,6 +369,8 @@ export default function CalendarPage() {
     const today = new Date();
     return month === today.getMonth() && year === today.getFullYear();
   };
+
+
 
   // Render the appropriate view component
   const renderCalendarView = () => {
