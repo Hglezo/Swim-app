@@ -4,13 +4,6 @@ const nextConfig = {
   images: {
     domains: [],
     remotePatterns: [],
-  },
-  webpack: (config) => {
-    config.module.rules.push({
-      test: /\.css$/,
-      use: ['style-loader', 'css-loader'],
-    });
-    return config;
   }
 }
 

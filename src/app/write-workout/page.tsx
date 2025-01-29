@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { FaSwimmer, FaChartLine, FaSignOutAlt, FaCalendarAlt, FaHome } from 'react-icons/fa';
+import { FaSwimmer, FaChartLine, FaSignOutAlt, FaCalendarAlt, FaHome, FaMagic } from 'react-icons/fa';
 import { MdDashboard, MdPerson } from 'react-icons/md';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
@@ -60,6 +60,8 @@ export default function WriteWorkout() {
   const [parseError, setParseError] = useState<string | null>(null);
   // Add intensity system state
   const [intensitySystem, setIntensitySystem] = useState<'polar' | 'international'>('polar');
+  const [isParsingWithGPT, setIsParsingWithGPT] = useState(false);
+  const [gptParseError, setGptParseError] = useState<string | null>(null);
 
   // Helper function to identify stroke
   const getStroke = (text: string): string => {
@@ -456,6 +458,48 @@ export default function WriteWorkout() {
     updateWorkoutSummary(newText);
   };
 
+  // Add the GPT parsing function
+  const parseWithGPT = async () => {
+    setIsParsingWithGPT(true);
+    setGptParseError(null);
+
+    try {
+      const response = await fetch('/api/parse-workout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          workout: workoutText,
+          poolType,
+          intensitySystem,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to parse workout with GPT');
+      }
+
+      // Update the workout summary with the parsed data
+      setWorkoutSummary({
+        totalDistance: data.totalDistance,
+        strokeDistances: data.strokeDistances,
+        intensityDistances: data.intensityDistances,
+      });
+    } catch (error) {
+      console.error('Error parsing workout with GPT:', error);
+      setGptParseError(
+        error instanceof Error 
+          ? error.message 
+          : 'Failed to parse workout. Please check your API key configuration.'
+      );
+    } finally {
+      setIsParsingWithGPT(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header/Navigation */}
@@ -567,9 +611,23 @@ export default function WriteWorkout() {
 
               {/* Workout Input */}
               <div>
-                <h2 className="text-lg font-semibold text-gray-900 mb-2">Write Your Workout</h2>
+                <div className="flex justify-between items-center mb-2">
+                  <h2 className="text-lg font-semibold text-gray-900">Write Your Workout</h2>
+                  <button
+                    onClick={parseWithGPT}
+                    disabled={isParsingWithGPT || !workoutText.trim()}
+                    className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors
+                      ${isParsingWithGPT || !workoutText.trim()
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'bg-teal-500 text-white hover:bg-teal-600'}`}
+                  >
+                    <FaMagic className="h-4 w-4 mr-2" />
+                    {isParsingWithGPT ? 'Parsing...' : 'Parse with GPT'}
+                  </button>
+                </div>
                 <p className="text-sm text-gray-600 mb-4">
                   Enter your workout in free format. Use new lines to separate sets.
+                  Click "Parse with GPT" to automatically structure your workout.
                 </p>
                 <div className="space-y-2">
                   <textarea
@@ -590,6 +648,11 @@ Main Set:
                   {parseError && (
                     <div className="text-red-500 text-sm font-medium bg-red-50 p-3 rounded-md">
                       ⚠️ {parseError}
+                    </div>
+                  )}
+                  {gptParseError && (
+                    <div className="text-red-500 text-sm font-medium bg-red-50 p-3 rounded-md">
+                      ⚠️ {gptParseError}
                     </div>
                   )}
                 </div>

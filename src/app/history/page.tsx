@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { FaSwimmer, FaArrowLeft, FaArrowRight, FaHome, FaCalendarAlt, FaChartLine, FaSignOutAlt, FaClock } from 'react-icons/fa';
 import { MdDashboard, MdPerson } from 'react-icons/md';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { usePreferences } from '@/contexts/PreferencesContext';
 
 type Workout = {
   count: number;
@@ -16,6 +17,12 @@ type WorkoutRecord = {
 };
 
 type CalendarView = 'today' | 'day' | 'week' | 'month' | 'year';
+
+interface UserPreferences {
+  distanceUnit: 'kilometers' | 'miles';
+  timeFormat: '24h' | '12h';
+  weekStart: 'monday' | 'sunday';
+}
 
 // Helper function to generate workout data for a given date
 const generateWorkoutForDate = (date: Date): Workout | null => {
@@ -80,9 +87,82 @@ const generateAllWorkouts = (): WorkoutRecord => {
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date(2024, 2)); // March 2024
   const [currentView, setCurrentView] = useState<CalendarView>('month');
+  const { preferences } = usePreferences();
 
   // Replace mockWorkouts with generated data
   const mockWorkouts = generateAllWorkouts();
+
+  // Helper function to convert meters to user's preferred unit
+  const formatDistance = (meters: number): string => {
+    if (preferences.distanceUnit === 'kilometers') {
+      return (meters / 1000).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + 'km';
+    } else {
+      // Convert to miles (1 mile = 1609.34 meters)
+      return (meters / 1609.34).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + 'mi';
+    }
+  };
+
+  // Helper function to format time according to user's preference
+  const formatTime = (time: string): string => {
+    const [hours, minutes] = time.split(':').map(Number);
+    if (preferences.timeFormat === '24h') {
+      return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+    } else {
+      const period = hours >= 12 ? 'PM' : 'AM';
+      const displayHours = hours % 12 || 12;
+      return `${displayHours}:${String(minutes).padStart(2, '0')} ${period}`;
+    }
+  };
+
+  // Helper function to get first day of month based on user's preference
+  const getFirstDayOfMonth = (date: Date) => {
+    const day = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+    if (preferences.weekStart === 'monday') {
+      return day === 0 ? 6 : day - 1; // Convert Sunday = 0 to Sunday = 6
+    } else {
+      return day; // Keep Sunday as 0
+    }
+  };
+
+  // Helper function to format total duration with user's time preference
+  const formatTotalDuration = (durations: string[]): string => {
+    const totalSeconds = durations.reduce((total, duration) => {
+      const [hours, minutes] = duration.split(':').map(Number);
+      return total + hours * 3600 + minutes * 60;
+    }, 0);
+
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    
+    if (preferences.timeFormat === '24h') {
+      return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+    } else {
+      if (hours > 0) {
+        const period = hours >= 12 ? 'PM' : 'AM';
+        const displayHours = hours % 12 || 12;
+        return `${displayHours}h ${minutes}m ${period}`;
+      }
+      return `${minutes}m`;
+    }
+  };
+
+  // Helper function to format single duration with user's time preference
+  const formatDuration = (duration: string): string => {
+    const [hours, minutes] = duration.split(':').map(Number);
+    if (preferences.timeFormat === '24h') {
+      return Number(hours) > 0 ? `${Number(hours)}h ${Number(minutes)}m` : `${Number(minutes)}m`;
+    } else {
+      if (Number(hours) > 0) {
+        const period = hours >= 12 ? 'PM' : 'AM';
+        const displayHours = hours % 12 || 12;
+        return `${displayHours}h ${Number(minutes)}m ${period}`;
+      }
+      return `${Number(minutes)}m`;
+    }
+  };
+
+  // Replace all instances of formatToKm with formatDistance
+  const formatToKm = formatDistance;
 
   const handlePreviousMonth = () => {
     if (currentView === 'day') {
@@ -158,12 +238,6 @@ export default function CalendarPage() {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
   };
 
-  // Helper function to get first day of month (0 = Monday)
-  const getFirstDayOfMonth = (date: Date) => {
-    const day = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
-    return day === 0 ? 6 : day - 1; // Convert Sunday = 0 to Sunday = 6
-  };
-
   const daysInMonth = getDaysInMonth(currentDate);
   const firstDayOfMonth = getFirstDayOfMonth(currentDate);
   const weeks = Math.ceil((daysInMonth + firstDayOfMonth) / 7);
@@ -179,32 +253,9 @@ export default function CalendarPage() {
     }
   };
 
-  // Helper function to format total duration
-  const formatTotalDuration = (durations: string[]): string => {
-    const totalSeconds = durations.reduce((total, duration) => {
-      const [hours, minutes] = duration.split(':').map(Number);
-      return total + hours * 3600 + minutes * 60;
-    }, 0);
-
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
-  };
-
-  // Helper function to format single duration
-  const formatDuration = (duration: string): string => {
-    const [hours, minutes] = duration.split(':');
-    return Number(hours) > 0 ? `${Number(hours)}h ${Number(minutes)}m` : `${Number(minutes)}m`;
-  };
-
   // Helper function to get total meters for a day
   const getTotalMeters = (workout: Workout): number => {
     return workout.meters.reduce((total, meters) => total + meters, 0);
-  };
-
-  // Helper function to format meters to kilometers
-  const formatToKm = (meters: number): string => {
-    return (meters / 1000).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + 'km';
   };
 
   // Find the longest and shortest days and calculate average
@@ -305,7 +356,12 @@ export default function CalendarPage() {
 
   // View switching handlers
   const handleViewChange = (newView: CalendarView) => {
-    setCurrentView(newView);
+    if (newView === 'today') {
+      setCurrentDate(new Date());
+      setCurrentView('day');
+    } else {
+      setCurrentView(newView);
+    }
   };
 
   // Helper function to get ISO week number
@@ -369,8 +425,6 @@ export default function CalendarPage() {
     const today = new Date();
     return month === today.getMonth() && year === today.getFullYear();
   };
-
-
 
   // Render the appropriate view component
   const renderCalendarView = () => {

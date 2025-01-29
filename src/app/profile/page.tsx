@@ -4,8 +4,11 @@ import Link from 'next/link';
 import { FaSwimmer, FaChartLine, FaSignOutAlt, FaCalendarAlt, FaHome, FaEdit, FaCog, FaMedal } from 'react-icons/fa';
 import { MdDashboard, MdPerson } from 'react-icons/md';
 import React from 'react';
+import { usePreferences } from '@/contexts/PreferencesContext';
 
 const ProfilePage: React.FC = () => {
+  const { preferences, updatePreferences } = usePreferences();
+
   // Mock user data
   const user = {
     name: "John Doe",
@@ -15,12 +18,14 @@ const ProfilePage: React.FC = () => {
       { name: "50km Club", date: "March 2024" },
       { name: "30 Day Streak", date: "February 2024" },
       { name: "Early Bird", date: "January 2024" },
-    ],
-    preferences: {
-      distanceUnit: "kilometers",
-      timeFormat: "24h",
-      weekStart: "Monday",
-    }
+    ]
+  };
+
+  const handlePreferenceChange = (key: keyof typeof preferences, value: string) => {
+    updatePreferences({
+      ...preferences,
+      [key]: value
+    });
   };
 
   return (
@@ -115,33 +120,45 @@ const ProfilePage: React.FC = () => {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900">Preferences</h2>
-              <FaCog className="h-5 w-5 text-gray-500" />
+              <FaCog className="h-5 w-5 text-teal-500" />
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-600">Distance Unit</label>
-                <select className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500">
-                  <option value="kilometers">Kilometers</option>
-                  <option value="miles">Miles</option>
+                <label className="block text-sm font-medium text-gray-900 mb-1">Distance Unit</label>
+                <p className="text-sm text-gray-600 mb-2">Current: {preferences.distanceUnit}</p>
+                <select 
+                  value={preferences.distanceUnit}
+                  onChange={(e) => handlePreferenceChange('distanceUnit', e.target.value)}
+                  className="mt-1 block w-full rounded-md border-2 border-gray-300 bg-white text-gray-900 font-medium shadow-sm focus:border-teal-500 focus:ring-teal-500 py-2 px-3 cursor-pointer hover:border-gray-400"
+                >
+                  <option value="kilometers" className="text-gray-900 font-medium">Kilometers</option>
+                  <option value="miles" className="text-gray-900 font-medium">Miles</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-600">Time Format</label>
-                <select className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500">
-                  <option value="24h">24-hour</option>
-                  <option value="12h">12-hour</option>
+                <label className="block text-sm font-medium text-gray-900 mb-1">Time Format</label>
+                <p className="text-sm text-gray-600 mb-2">Current: {preferences.timeFormat}</p>
+                <select 
+                  value={preferences.timeFormat}
+                  onChange={(e) => handlePreferenceChange('timeFormat', e.target.value)}
+                  className="mt-1 block w-full rounded-md border-2 border-gray-300 bg-white text-gray-900 font-medium shadow-sm focus:border-teal-500 focus:ring-teal-500 py-2 px-3 cursor-pointer hover:border-gray-400"
+                >
+                  <option value="24h" className="text-gray-900 font-medium">24-hour</option>
+                  <option value="12h" className="text-gray-900 font-medium">12-hour</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-600">Week Starts On</label>
-                <select className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500">
-                  <option value="monday">Monday</option>
-                  <option value="sunday">Sunday</option>
+                <label className="block text-sm font-medium text-gray-900 mb-1">Week Starts On</label>
+                <p className="text-sm text-gray-600 mb-2">Current: {preferences.weekStart}</p>
+                <select 
+                  value={preferences.weekStart}
+                  onChange={(e) => handlePreferenceChange('weekStart', e.target.value)}
+                  className="mt-1 block w-full rounded-md border-2 border-gray-300 bg-white text-gray-900 font-medium shadow-sm focus:border-teal-500 focus:ring-teal-500 py-2 px-3 cursor-pointer hover:border-gray-400"
+                >
+                  <option value="monday" className="text-gray-900 font-medium">Monday</option>
+                  <option value="sunday" className="text-gray-900 font-medium">Sunday</option>
                 </select>
               </div>
-              <button className="w-full mt-4 bg-teal-500 text-white py-2 px-4 rounded-md hover:bg-teal-600 transition-colors">
-                Save Changes
-              </button>
             </div>
           </div>
         </div>
