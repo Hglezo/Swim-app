@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { FaSwimmer, FaChartLine, FaSignOutAlt, FaCalendarAlt, FaHome } from 'react-icons/fa';
 import { MdDashboard, MdAdd, MdPerson } from 'react-icons/md';
@@ -58,7 +60,10 @@ export default function Home() {
               Easily log your swim workouts, analyze your progress, and stay motivated to reach your goals.
             </p>
             <div className="flex justify-center space-x-4">
-              <Link href="/write-workout" className="bg-teal-500 text-white px-8 py-3 rounded-full font-semibold hover:bg-teal-600 transition-colors">
+              <Link 
+                href="/write-workout"
+                className="bg-teal-500 text-white px-8 py-3 rounded-full font-semibold hover:bg-teal-600 transition-colors"
+              >
                 Write your workout
               </Link>
               <button className="bg-white text-teal-500 px-8 py-3 rounded-full font-semibold hover:bg-teal-50 transition-colors">
