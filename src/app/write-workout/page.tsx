@@ -37,6 +37,7 @@ interface ParsedSet {
   stroke: string;
   strokeType: StrokeType;
   intensity: IntensityType;
+  strokeDistances?: { [key: string]: number };
 }
 
 export default function WriteWorkout() {
@@ -136,92 +137,147 @@ export default function WriteWorkout() {
   };
 
   // Helper function to parse bracket content
-  const parseBracketContent = (content: string): number => {
+  const parseBracketContent = (content: string): { distance: number; parts: { distance: number; stroke: string }[] } => {
     console.log('Parsing bracket content:', content);
     // Remove brackets and clean up content
     const text = content
       .replace(/[\(\[\{]/g, '')  // Remove opening brackets
       .replace(/[\)\]\}]/g, '')  // Remove closing brackets
-      .replace(/\n/g, ' ')       // Replace newlines with spaces
-      .toLowerCase()
       .trim();
 
     console.log('Cleaned text:', text);
 
     if (!text) {
       console.log('Empty text, returning 0');
-      return 0;
+      return { distance: 0, parts: [] };
     }
 
-    let distance = 0;
-    // Split by plus signs and spaces, filtering out empty strings
-    const parts = text.split(/[+\s]+/).filter(part => part.length > 0);
-    console.log('Split parts:', parts);
+    let totalDistance = 0;
+    const parts: { distance: number; stroke: string }[] = [];
+    
+    // First split by newlines
+    const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+    console.log('Split lines:', lines);
 
-    for (const part of parts) {
-      console.log('Processing part:', part);
-      // Handle multiplier notation (e.g., "4x100")
-      if (part.match(/^\d+\s*[x×*]\s*\d+$/)) {
-        console.log('Found multiplier notation:', part);
-        const [reps, dist] = part.split(/[x×*]/).map(s => s.trim());
-        if (reps && dist) {
-          const partDistance = parseInt(reps) * parseInt(dist);
-          console.log(`Calculated ${reps} x ${dist} = ${partDistance}`);
-          distance += partDistance;
+    // Process each line
+    for (const line of lines) {
+      // Split line by plus signs
+      const segments = line.split(/\s*\+\s*/).map(s => s.trim()).filter(s => s.length > 0);
+      console.log('Line segments:', segments);
+
+      for (const segment of segments) {
+        console.log('Processing segment:', segment);
+        let segmentDistance = 0;
+        
+        // First, try to find a number at the start of the segment
+        const numberMatch = segment.match(/^\d+/);
+        if (numberMatch) {
+          segmentDistance = parseInt(numberMatch[0]);
+          console.log(`Found number: ${segmentDistance}`);
+        }
+
+        if (segmentDistance > 0) {
+          totalDistance += segmentDistance;
+          const stroke = getStroke(segment);
+          parts.push({
+            distance: segmentDistance,
+            stroke
+          });
+          console.log(`Added segment: ${segmentDistance} ${stroke}`);
         }
       }
-      // Handle simple numbers
-      else if (part.match(/^\d+$/)) {
-        console.log('Found simple number:', part);
-        distance += parseInt(part);
-      } else {
-        console.log('Skipping non-numeric part:', part);
-      }
     }
 
-    console.log('Final bracket distance:', distance);
-    return distance;
+    console.log('Final bracket result:', { distance: totalDistance, parts });
+    return { distance: totalDistance, parts };
   };
 
   // Update parseLine to handle all cases correctly
   const parseLine = (line: string): ParsedSet => {
+    console.log('\nParsing line:', line);
     const text = line.toLowerCase().trim();
-    if (!text) return { distance: 0, stroke: 'freestyle', strokeType: 'normal', intensity: null };
+    if (!text) return { distance: 0, stroke: 'freestyle', strokeType: 'normal', intensity: null, strokeDistances: {} };
 
     let distance = 0;
-    const parts = text.split(/[\s+]+/);
-    let i = 0;
+    let strokeDistances: { [key: string]: number } = {};
+    
+    // Check if the line contains a parentheses expression
+    if (text.includes('(') || text.includes('[') || text.includes('{')) {
+      console.log('Found bracket expression');
+      // Extract multiplier if present (e.g., "5x" in "5x(100 + 100)")
+      const multiplierMatch = text.match(/^(\d+)\s*[x×*]/);
+      const multiplier = multiplierMatch ? parseInt(multiplierMatch[1]) : 1;
+      console.log('Multiplier:', multiplier);
+      
+      // Get the bracket content and parse it
+      const bracketStart = text.search(/[\(\[\{]/);
+      const bracketContent = text.substring(bracketStart);
+      console.log('Bracket content:', bracketContent);
+      const { distance: bracketDistance, parts } = parseBracketContent(bracketContent);
+      console.log('Parsed bracket result:', { bracketDistance, parts });
+      distance = bracketDistance * multiplier;
+      console.log('Total distance:', distance);
+      
+      // Multiply each part's distance by the multiplier and store by stroke
+      parts.forEach(part => {
+        const partTotalDistance = part.distance * multiplier;
+        strokeDistances[part.stroke] = (strokeDistances[part.stroke] || 0) + partTotalDistance;
+        console.log(`Added ${partTotalDistance} to ${part.stroke}`);
+      });
+    } else {
+      // Original parsing logic for non-bracket lines
+      const parts = text.split(/[\s+]+/);
+      let i = 0;
 
-    while (i < parts.length) {
-      const part = parts[i].trim();
-      if (!part) {
-        i++;
-        continue;
-      }
-
-      // Handle multiplier notation (e.g., "4x100")
-      if (part.match(/^\d+\s*[x×*]\s*\d+$/)) {
-        const [reps, dist] = part.split(/[x×*]/);
-        if (reps && dist) {
-          distance += parseInt(reps.trim()) * parseInt(dist.trim());
+      while (i < parts.length) {
+        const part = parts[i].trim();
+        if (!part) {
+          i++;
+          continue;
         }
-        i++;
+
+        // Handle multiplier notation (e.g., "4x100")
+        if (part.match(/^\d+\s*[x×*]\s*\d+$/)) {
+          const [reps, dist] = part.split(/[x×*]/);
+          if (reps && dist) {
+            distance += parseInt(reps.trim()) * parseInt(dist.trim());
+          }
+          i++;
+        }
+        // Handle simple numbers
+        else if (part.match(/^\d+$/)) {
+          distance += parseInt(part);
+          i++;
+        } else {
+          i++;
+        }
       }
-      // Handle simple numbers
-      else if (part.match(/^\d+$/)) {
-        distance += parseInt(part);
-        i++;
-      } else {
-        i++;
+      
+      // For non-bracket lines, all distance goes to the single stroke
+      if (distance > 0) {
+        strokeDistances[getStroke(text)] = distance;
       }
     }
 
-    return {
+    // Find the dominant stroke (the one with the most distance)
+    let dominantStroke = 'freestyle';
+    let maxDistance = 0;
+    for (const [stroke, strokeDistance] of Object.entries(strokeDistances)) {
+      if (strokeDistance > maxDistance) {
+        maxDistance = strokeDistance;
+        dominantStroke = stroke;
+      }
+    }
+
+    const result = {
       distance,
-      stroke: getStroke(text),
+      stroke: dominantStroke,
       strokeType: getStrokeType(text),
-      intensity: getIntensity(text)
+      intensity: getIntensity(text),
+      strokeDistances
     };
+    console.log('Parse line result:', result);
+    return result;
   };
 
   // Helper function to get intensity display name
@@ -243,14 +299,16 @@ export default function WriteWorkout() {
     }
   };
 
-  // Update the updateWorkoutSummary function to handle multi-line content
+  // Update the updateWorkoutSummary function to use strokeDistances
   const updateWorkoutSummary = (text: string) => {
     console.log('Starting workout summary update with text:', text);
     setParseError(null);
     
     try {
-      const lines = text.split('\n');
-      console.log('Split lines:', lines);
+      let processedText = text;
+      let bracketContent = '';
+      let multiplier = 1;
+      let pendingMultiplier = 1;  // Add this to track multiplier from previous line
       const newSummary: WorkoutSummary = {
         totalDistance: 0,
         strokeDistances: {
@@ -264,112 +322,122 @@ export default function WriteWorkout() {
         intensityDistances: {}
       };
 
-      let pendingMultiplier = 1;
-      let bracketContent = '';
-      let bracketCount = 0;
+      // Split into lines and process
+      const lines = processedText.split('\n');
       let collectingBracket = false;
+      let bracketLines: string[] = [];
 
-      // Process each line
       for (let i = 0; i < lines.length; i++) {
         const trimmedLine = lines[i].trim();
-        console.log(`\nProcessing line ${i + 1}:`, trimmedLine);
-        if (!trimmedLine) {
-          console.log('Skipping empty line');
-          continue;
-        }
+        if (!trimmedLine) continue;
 
         // Check for standalone multiplier
-        const multiplierMatch = trimmedLine.match(/^(\d+)\s*[x×*]\s*$/);
-        if (multiplierMatch && !collectingBracket) {
-          pendingMultiplier = parseInt(multiplierMatch[1]);
-          console.log('Found standalone multiplier:', pendingMultiplier);
+        const standaloneMultiplier = trimmedLine.match(/^(\d+)\s*[x×*]\s*$/);
+        if (standaloneMultiplier) {
+          pendingMultiplier = parseInt(standaloneMultiplier[1]);
           continue;
         }
 
-        // Check for multiplier with bracket on same line
-        const multiplierBracketMatch = trimmedLine.match(/^(\d+)\s*[x×*]\s*[\(\[\{]/);
-        if (multiplierBracketMatch && !collectingBracket) {
-          pendingMultiplier = parseInt(multiplierBracketMatch[1]);
-          console.log('Found multiplier with bracket:', pendingMultiplier);
+        if (trimmedLine.includes('(') || trimmedLine.includes('[') || trimmedLine.includes('{')) {
+          // Start collecting bracket content
           collectingBracket = true;
-          bracketContent = trimmedLine.substring(trimmedLine.indexOf(multiplierBracketMatch[0]) + multiplierBracketMatch[0].length - 1);
-          bracketCount = (bracketContent.match(/[\(\[\{]/g) || []).length - (bracketContent.match(/[\)\]\}]/g) || []).length;
-          console.log('Initial bracket content:', bracketContent);
-          console.log('Initial bracket count:', bracketCount);
+          // Check for multiplier on same line
+          const multiplierMatch = trimmedLine.match(/^(\d+)\s*[x×*]/);
+          if (multiplierMatch) {
+            multiplier = parseInt(multiplierMatch[1]);
+            pendingMultiplier = 1; // Reset pending multiplier if we find one on this line
+          } else {
+            multiplier = pendingMultiplier; // Use pending multiplier if no multiplier on this line
+            pendingMultiplier = 1; // Reset pending multiplier
+          }
+          
+          // Check if the line also contains the closing bracket
+          const hasClosingBracket = trimmedLine.includes(')') || trimmedLine.includes(']') || trimmedLine.includes('}');
+          if (hasClosingBracket) {
+            // Single-line bracket content
+            const bracketStart = trimmedLine.search(/[\(\[\{]/);
+            const bracketEnd = trimmedLine.search(/[\)\]\}]/);
+            if (bracketStart !== -1 && bracketEnd !== -1) {
+              const bracketText = trimmedLine.substring(bracketStart, bracketEnd + 1);
+              console.log('Processing single-line bracket content:', bracketText, 'with multiplier:', multiplier);
+              const { distance: bracketDistance, parts } = parseBracketContent(bracketText);
+              
+              // Add the results to the summary
+              const totalBracketDistance = bracketDistance * multiplier;
+              newSummary.totalDistance += totalBracketDistance;
+              
+              parts.forEach(part => {
+                const partTotalDistance = part.distance * multiplier;
+                if (part.stroke in newSummary.strokeDistances) {
+                  newSummary.strokeDistances[part.stroke as keyof typeof newSummary.strokeDistances] += partTotalDistance;
+                }
+              });
+
+              // Reset bracket collection
+              collectingBracket = false;
+              bracketLines = [];
+              multiplier = 1;
+            }
+          } else {
+            // Multi-line bracket content
+            const bracketStart = trimmedLine.search(/[\(\[\{]/);
+            if (bracketStart !== -1) {
+              bracketLines.push(trimmedLine.substring(bracketStart + 1));
+            }
+          }
           continue;
         }
 
-        // Check for bracket start
-        if (!collectingBracket && (trimmedLine.startsWith('(') || trimmedLine.startsWith('[') || trimmedLine.startsWith('{'))) {
-          collectingBracket = true;
-          bracketContent = trimmedLine;
-          bracketCount = (trimmedLine.match(/[\(\[\{]/g) || []).length - (trimmedLine.match(/[\)\]\}]/g) || []).length;
-          console.log('Started bracket collection:', bracketContent);
-          console.log('Bracket count:', bracketCount);
-          continue;
-        }
-
-        // If we're collecting bracket content
         if (collectingBracket) {
-          bracketContent += '\n' + trimmedLine;
-          const openBrackets = (trimmedLine.match(/[\(\[\{]/g) || []).length;
-          const closeBrackets = (trimmedLine.match(/[\)\]\}]/g) || []).length;
-          bracketCount += openBrackets - closeBrackets;
-          console.log('Updated bracket content:', bracketContent);
-          console.log('Updated bracket count:', bracketCount);
-
-          // If brackets are balanced, process the content
-          if (bracketCount === 0) {
-            console.log('Processing complete bracket content:', bracketContent);
-            const bracketDistance = parseBracketContent(bracketContent);
-            console.log('Bracket distance:', bracketDistance);
-            if (bracketDistance > 0) {
-              const totalDistance = bracketDistance * pendingMultiplier;
-              console.log(`Total distance for bracket: ${bracketDistance} * ${pendingMultiplier} = ${totalDistance}`);
-              newSummary.totalDistance += totalDistance;
-
-              // Get stroke and intensity from the entire bracket content
-              const stroke = getStroke(bracketContent);
-              if (stroke in newSummary.strokeDistances) {
-                newSummary.strokeDistances[stroke as keyof typeof newSummary.strokeDistances] += totalDistance;
-                console.log(`Added ${totalDistance} to ${stroke}`);
+          if (trimmedLine.includes(')') || trimmedLine.includes(']') || trimmedLine.includes('}')) {
+            // End of bracket content
+            const bracketEnd = trimmedLine.search(/[\)\]\}]/);
+            if (bracketEnd !== -1) {
+              bracketLines.push(trimmedLine.substring(0, bracketEnd));
+            }
+            
+            // Parse the collected bracket content
+            const bracketText = bracketLines.join('\n');
+            console.log('Processing multi-line bracket content:', bracketText, 'with multiplier:', multiplier);
+            const { distance: bracketDistance, parts } = parseBracketContent(bracketText);
+            
+            // Add the results to the summary
+            const totalBracketDistance = bracketDistance * multiplier;
+            newSummary.totalDistance += totalBracketDistance;
+            
+            parts.forEach(part => {
+              const partTotalDistance = part.distance * multiplier;
+              if (part.stroke in newSummary.strokeDistances) {
+                newSummary.strokeDistances[part.stroke as keyof typeof newSummary.strokeDistances] += partTotalDistance;
               }
+            });
 
-              const intensity = getIntensity(bracketContent);
-              const intensityName = getIntensityDisplayName(intensity);
-              if (intensityName) {
-                newSummary.intensityDistances[intensityName] = 
-                  (newSummary.intensityDistances[intensityName] || 0) + totalDistance;
-                console.log(`Added ${totalDistance} to intensity ${intensityName}`);
+            // Reset bracket collection
+            collectingBracket = false;
+            bracketLines = [];
+            multiplier = 1;
+          } else {
+            // Continue collecting bracket content
+            bracketLines.push(trimmedLine);
+          }
+        } else {
+          // Process regular line
+          const parsed = parseLine(trimmedLine);
+          if (parsed.distance > 0) {
+            newSummary.totalDistance += parsed.distance;
+            if (parsed.strokeDistances) {
+              for (const [stroke, distance] of Object.entries(parsed.strokeDistances)) {
+                if (stroke in newSummary.strokeDistances) {
+                  newSummary.strokeDistances[stroke as keyof typeof newSummary.strokeDistances] += distance;
+                }
               }
             }
-            collectingBracket = false;
-            bracketContent = '';
-            pendingMultiplier = 1;
-            continue;
+            const intensityName = getIntensityDisplayName(parsed.intensity);
+            if (intensityName) {
+              newSummary.intensityDistances[intensityName] = 
+                (newSummary.intensityDistances[intensityName] || 0) + parsed.distance;
+            }
           }
-          continue;
-        }
-
-        // Process regular line
-        console.log('Processing as regular line:', trimmedLine);
-        const parsed = parseLine(trimmedLine);
-        console.log('Parsed line result:', parsed);
-        if (parsed.distance > 0) {
-          const totalDistance = parsed.distance * pendingMultiplier;
-          console.log(`Regular line distance: ${parsed.distance} * ${pendingMultiplier} = ${totalDistance}`);
-          newSummary.totalDistance += totalDistance;
-          if (parsed.stroke in newSummary.strokeDistances) {
-            newSummary.strokeDistances[parsed.stroke as keyof typeof newSummary.strokeDistances] += totalDistance;
-            console.log(`Added ${totalDistance} to ${parsed.stroke}`);
-          }
-          const intensityName = getIntensityDisplayName(parsed.intensity);
-          if (intensityName) {
-            newSummary.intensityDistances[intensityName] = 
-              (newSummary.intensityDistances[intensityName] || 0) + totalDistance;
-            console.log(`Added ${totalDistance} to intensity ${intensityName}`);
-          }
-          pendingMultiplier = 1;
         }
       }
 
