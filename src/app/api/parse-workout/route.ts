@@ -124,10 +124,18 @@ Return only the JSON object with no additional text.`;
         throw new Error('Invalid response format from OpenAI API');
       }
 
-      const parsedWorkout = JSON.parse(data.choices[0].message.content);
-      console.log('Successfully parsed workout');
-
-      return NextResponse.json(parsedWorkout);
+      // Clean up the response content by removing markdown code blocks if present
+      let content = data.choices[0].message.content;
+      content = content.replace(/^```json\s*/, '').replace(/```\s*$/, '');
+      
+      try {
+        const parsedWorkout = JSON.parse(content);
+        console.log('Successfully parsed workout');
+        return NextResponse.json(parsedWorkout);
+      } catch (parseError) {
+        console.error('Error parsing OpenAI response:', parseError);
+        throw new Error(`Failed to parse OpenAI response: ${parseError.message}`);
+      }
     } catch (error) {
       console.error('Error in OpenAI request:', error);
       throw new Error(`OpenAI API error: ${error instanceof Error ? error.message : 'Unknown error'}`);
