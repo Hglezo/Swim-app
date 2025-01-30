@@ -532,10 +532,13 @@ export default function WriteWorkout() {
               <MdPerson className="h-5 w-5 mr-2" />
               Profile
             </Link>
-            <button className="text-gray-700 hover:text-teal-500 transition-colors flex items-center">
+            <Link 
+              href="/logout" 
+              className="text-gray-700 hover:text-teal-500 transition-colors flex items-center"
+            >
               <FaSignOutAlt className="h-5 w-5 mr-2" />
               Log Out
-            </button>
+            </Link>
           </div>
         </nav>
       </header>

@@ -1,24 +1,52 @@
 'use client';
 
 import Link from 'next/link';
-import { FaSwimmer, FaChartLine, FaSignOutAlt, FaCalendarAlt, FaHome, FaEdit, FaCog, FaMedal } from 'react-icons/fa';
+import { FaSwimmer, FaChartLine, FaSignOutAlt, FaCalendarAlt, FaHome, FaEdit, FaCog, FaMedal, FaCheck, FaTimes } from 'react-icons/fa';
 import { MdDashboard, MdPerson } from 'react-icons/md';
-import React from 'react';
+import React, { useState } from 'react';
 import { usePreferences } from '@/contexts/PreferencesContext';
 
 const ProfilePage: React.FC = () => {
   const { preferences, updatePreferences } = usePreferences();
-
-  // Mock user data
-  const user = {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedUser, setEditedUser] = useState({
     name: "John Doe",
     email: "john.doe@example.com",
+    type: "athlete" as "athlete" | "coach",
     memberSince: "January 2023",
     achievements: [
       { name: "50km Club", date: "March 2024" },
       { name: "30 Day Streak", date: "February 2024" },
       { name: "Early Bird", date: "January 2024" },
     ]
+  });
+
+  const handleEditToggle = () => {
+    if (isEditing) {
+      // Save changes here (in a real app, this would make an API call)
+      setIsEditing(false);
+    } else {
+      setIsEditing(true);
+    }
+  };
+
+  const handleInputChange = (field: keyof typeof editedUser, value: string) => {
+    setEditedUser(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleCancelEdit = () => {
+    // Reset to original values
+    setEditedUser({
+      name: "John Doe",
+      email: "john.doe@example.com",
+      type: "athlete",
+      memberSince: "January 2023",
+      achievements: editedUser.achievements
+    });
+    setIsEditing(false);
   };
 
   const handlePreferenceChange = (key: keyof typeof preferences, value: string) => {
@@ -58,10 +86,13 @@ const ProfilePage: React.FC = () => {
               <MdPerson className="h-5 w-5 mr-2" />
               Profile
             </Link>
-            <button className="text-gray-700 hover:text-teal-500 transition-colors flex items-center">
+            <Link 
+              href="/logout" 
+              className="text-gray-700 hover:text-teal-500 transition-colors flex items-center"
+            >
               <FaSignOutAlt className="h-5 w-5 mr-2" />
               Log Out
-            </button>
+            </Link>
           </div>
         </nav>
       </header>
@@ -77,22 +108,77 @@ const ProfilePage: React.FC = () => {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900">Personal Information</h2>
-              <button className="text-teal-500 hover:text-teal-600 transition-colors">
-                <FaEdit className="h-5 w-5" />
-              </button>
+              <div className="flex space-x-2">
+                {isEditing ? (
+                  <>
+                    <button 
+                      onClick={handleEditToggle}
+                      className="text-green-500 hover:text-green-600 transition-colors"
+                    >
+                      <FaCheck className="h-5 w-5" />
+                    </button>
+                    <button 
+                      onClick={handleCancelEdit}
+                      className="text-red-500 hover:text-red-600 transition-colors"
+                    >
+                      <FaTimes className="h-5 w-5" />
+                    </button>
+                  </>
+                ) : (
+                  <button 
+                    onClick={handleEditToggle}
+                    className="text-teal-500 hover:text-teal-600 transition-colors"
+                  >
+                    <FaEdit className="h-5 w-5" />
+                  </button>
+                )}
+              </div>
             </div>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-600">Name</label>
-                <p className="mt-1 text-gray-900">{user.name}</p>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedUser.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    className="mt-1 block w-full rounded-md border-2 border-gray-300 bg-white text-gray-900 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-2 px-3"
+                  />
+                ) : (
+                  <p className="mt-1 text-gray-900">{editedUser.name}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-600">Email</label>
-                <p className="mt-1 text-gray-900">{user.email}</p>
+                {isEditing ? (
+                  <input
+                    type="email"
+                    value={editedUser.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    className="mt-1 block w-full rounded-md border-2 border-gray-300 bg-white text-gray-900 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-2 px-3"
+                  />
+                ) : (
+                  <p className="mt-1 text-gray-900">{editedUser.email}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600">User Type</label>
+                {isEditing ? (
+                  <select
+                    value={editedUser.type}
+                    onChange={(e) => handleInputChange('type', e.target.value)}
+                    className="mt-1 block w-full rounded-md border-2 border-gray-300 bg-white text-gray-900 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-2 px-3"
+                  >
+                    <option value="athlete">Athlete</option>
+                    <option value="coach">Coach</option>
+                  </select>
+                ) : (
+                  <p className="mt-1 text-gray-900 capitalize">{editedUser.type}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-600">Member Since</label>
-                <p className="mt-1 text-gray-900">{user.memberSince}</p>
+                <p className="mt-1 text-gray-900">{editedUser.memberSince}</p>
               </div>
             </div>
           </div>
@@ -104,7 +190,7 @@ const ProfilePage: React.FC = () => {
               <FaMedal className="h-5 w-5 text-yellow-500" />
             </div>
             <div className="space-y-4">
-              {user.achievements.map((achievement, index) => (
+              {editedUser.achievements.map((achievement, index) => (
                 <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div>
                     <p className="font-medium text-gray-900">{achievement.name}</p>
