@@ -54,6 +54,22 @@ const formatDateString = (date: Date): string => {
   return date.toISOString().split('T')[0];
 };
 
+// Add helper functions for duration
+const getTotalDuration = (workout: Workout): number => {
+  // Assuming each workout takes about 2 minutes per 100m on average
+  return Math.round((workout.summary.totalDistance / 100) * 2 * 60);
+};
+
+const formatDuration = (seconds: number): string => {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  
+  if (hours > 0) {
+    return `${hours}h ${minutes}m`;
+  }
+  return `${minutes}m`;
+};
+
 const WorkoutDetailModal = ({ 
   workout, 
   onClose, 
@@ -349,6 +365,103 @@ const WorkoutDetailModal = ({
   );
 };
 
+// Add a new component for expandable workout
+const ExpandableWorkout = ({ 
+  workout, 
+  date,
+  isExpanded,
+  onToggle,
+  onEdit,
+  onDelete 
+}: { 
+  workout: Workout;
+  date: string;
+  isExpanded: boolean;
+  onToggle: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+}) => {
+  return (
+    <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      {/* Header - Always visible */}
+      <div
+        onClick={onToggle}
+        className="p-4 cursor-pointer hover:bg-gray-50 flex items-center justify-between"
+      >
+        <div className="flex items-center space-x-4">
+          <FaSwimmer className="h-5 w-5 text-teal-500" />
+          <span className="font-medium text-gray-900">
+            {formatToKm(workout.summary.totalDistance)}
+          </span>
+          <span className="text-gray-500">
+            {formatDuration(getTotalDuration(workout))}
+          </span>
+        </div>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit();
+            }}
+            className="p-1.5 hover:bg-gray-100 rounded-full text-gray-500 hover:text-teal-600"
+          >
+            <FaEdit className="h-4 w-4" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            className="p-1.5 hover:bg-gray-100 rounded-full text-gray-500 hover:text-red-600"
+          >
+            <FaTrash className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Expandable Content */}
+      <div className={`overflow-hidden transition-all duration-200 ease-in-out ${
+        isExpanded ? 'max-h-[500px] border-t' : 'max-h-0'
+      }`}>
+        <div className="p-4 bg-gray-50">
+          <pre className="text-sm text-gray-600 whitespace-pre-wrap font-mono">
+            {workout.text}
+          </pre>
+          <div className="mt-4 grid grid-cols-2 gap-4">
+            <div>
+              <h4 className="text-sm font-medium text-gray-700 mb-2">Distance by Stroke</h4>
+              <div className="space-y-1">
+                {Object.entries(workout.summary.strokeDistances)
+                  .filter(([_, distance]) => distance > 0)
+                  .map(([stroke, distance]) => (
+                    <div key={stroke} className="flex justify-between text-sm">
+                      <span className="text-gray-600 capitalize">{stroke}:</span>
+                      <span className="font-medium text-gray-900">{distance}m</span>
+                    </div>
+                  ))
+                }
+              </div>
+            </div>
+            {Object.keys(workout.summary.intensityDistances || {}).length > 0 && (
+              <div>
+                <h4 className="text-sm font-medium text-gray-700 mb-2">Distance by Intensity</h4>
+                <div className="space-y-1">
+                  {Object.entries(workout.summary.intensityDistances || {}).map(([intensity, distance]) => (
+                    <div key={intensity} className="flex justify-between text-sm">
+                      <span className="text-gray-600">{intensity}:</span>
+                      <span className="font-medium text-gray-900">{distance}m</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentView, setCurrentView] = useState<CalendarView>('month');
@@ -356,6 +469,7 @@ export default function CalendarPage() {
   const { preferences } = usePreferences();
   const [selectedWorkout, setSelectedWorkout] = useState<SelectedWorkout>(null);
   const [poolType, setPoolType] = useState<'SCY' | 'SCM' | 'LCM'>('LCM');
+  const [expandedWorkoutId, setExpandedWorkoutId] = useState<string | null>(null);
 
   // Load workouts for the current month
   useEffect(() => {
@@ -423,19 +537,6 @@ export default function CalendarPage() {
     } catch (error) {
       console.error('Error deleting workout:', error);
     }
-  };
-
-  // Helper function to get total duration for a workout
-  const getTotalDuration = (workout: Workout): number => {
-    // For now, estimate duration based on distance (assuming 2min/100m pace)
-    return Math.round((workout.summary.totalDistance / 100) * 2);
-  };
-
-  // Helper function to format duration
-  const formatDuration = (minutes: number): string => {
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-    return hours > 0 ? `${hours}h ${remainingMinutes}m` : `${remainingMinutes}m`;
   };
 
   // Calculate first day of month and number of weeks
@@ -533,18 +634,71 @@ export default function CalendarPage() {
               </button>
             </div>
 
-            <div className="flex-1 bg-white rounded-lg shadow overflow-hidden">
-              <div className="p-4">
-                <div className="space-y-4">
-                  {/* Daily Summary */}
-                  {dayWorkouts && <DailySummary workouts={dayWorkouts} poolType={poolType} />}
-                  {/* Workouts List */}
-                  <div className="space-y-2">
-                    {dayWorkouts?.map((workout) => renderWorkout(workout, true, formatDateString(currentDate)))}
+            {/* Workouts List with Expandable Details */}
+            <div className="space-y-4">
+              {dayWorkouts.map((workout) => (
+                <ExpandableWorkout
+                  key={workout.id}
+                  workout={workout}
+                  date={formatDateString(currentDate)}
+                  isExpanded={expandedWorkoutId === workout.id}
+                  onToggle={() => {
+                    setExpandedWorkoutId(expandedWorkoutId === workout.id ? null : workout.id);
+                  }}
+                  onEdit={() => setSelectedWorkout({ ...workout, date: formatDateString(currentDate) })}
+                  onDelete={() => {
+                    setSelectedWorkout({ ...workout, date: formatDateString(currentDate) });
+                    handleDeleteWorkout();
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* Daily Summary */}
+            {dayWorkouts.length > 0 && (
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Daily Summary</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div>
+                    <div className="text-sm font-medium text-gray-500 mb-2">Total Distance</div>
+                    <div className="text-2xl font-bold text-teal-600">
+                      {formatToKm(dayWorkouts.reduce((sum, w) => sum + w.summary.totalDistance, 0))}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-gray-500 mb-2">Total Time</div>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {formatDuration(dayWorkouts.reduce((sum, w) => sum + getTotalDuration(w), 0))}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-gray-500 mb-2">Workouts</div>
+                    <div className="text-2xl font-bold text-gray-900">{dayWorkouts.length}</div>
+                  </div>
+                </div>
+                <div className="mt-6">
+                  <h4 className="text-sm font-medium text-gray-700 mb-3">Distance by Stroke</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {Object.entries(
+                      dayWorkouts.reduce((acc, workout) => {
+                        Object.entries(workout.summary.strokeDistances).forEach(([stroke, distance]) => {
+                          acc[stroke] = (acc[stroke] || 0) + distance;
+                        });
+                        return acc;
+                      }, {} as Record<string, number>)
+                    )
+                      .filter(([_, distance]) => distance > 0)
+                      .map(([stroke, distance]) => (
+                        <div key={stroke} className="flex justify-between">
+                          <span className="text-gray-600 capitalize">{stroke}:</span>
+                          <span className="font-medium text-gray-900">{distance}m</span>
+                        </div>
+                      ))
+                    }
                   </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         );
       }
@@ -587,47 +741,72 @@ export default function CalendarPage() {
             </div>
             
             {/* Week View Grid */}
-            <div className="flex-1 bg-white rounded-lg shadow overflow-hidden">
-              <div className="grid grid-cols-1 divide-y">
-                {Array.from({ length: 5 }).map((_, index) => {
+            <div className="grid grid-cols-12 gap-4">
+              {/* Main Week View */}
+              <div className="col-span-9 bg-white rounded-lg shadow overflow-hidden">
+                <div className="grid grid-cols-1 divide-y">
+                  {Array.from({ length: 7 }).map((_, index) => {
+                    const date = new Date(currentDate);
+                    date.setDate(currentDate.getDate() - currentDate.getDay() + index + 1);
+                    const dateString = formatDateString(date);
+                    const dayWorkouts = workouts[dateString] || [];
+
+                    return (
+                      <div key={index} className={`p-4 ${
+                        isToday(date) ? 'bg-teal-50' : 'hover:bg-gray-50'
+                      }`}>
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className={`font-medium ${
+                            isToday(date) ? 'text-teal-600' : 'text-gray-900'
+                          }`}>
+                            {date.toLocaleDateString('default', { weekday: 'long', month: 'short', day: 'numeric' })}
+                          </h4>
+                        </div>
+                        <div className="space-y-2">
+                          {dayWorkouts?.map((workout) => renderWorkout(workout, true, dateString))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Daily Summaries */}
+              <div className="col-span-3 space-y-4">
+                {Array.from({ length: 7 }).map((_, index) => {
                   const date = new Date(currentDate);
                   date.setDate(currentDate.getDate() - currentDate.getDay() + index + 1);
                   const dateString = formatDateString(date);
                   const dayWorkouts = workouts[dateString] || [];
 
+                  if (dayWorkouts.length === 0) return null;
+
+                  const totalDistance = dayWorkouts.reduce((sum, w) => sum + w.summary.totalDistance, 0);
+                  const totalTime = dayWorkouts.reduce((sum, w) => sum + getTotalDuration(w), 0);
+
                   return (
-                    <div key={index} className={`p-4 ${
-                      isToday(date) ? 'bg-teal-50' : 'hover:bg-gray-50'
-                    }`}>
-                      <div className="flex items-center justify-between mb-3">
-                        <h4 className={`font-medium ${
-                          isToday(date) ? 'text-teal-600' : 'text-gray-900'
-                        }`}>
-                          {date.toLocaleDateString('default', { weekday: 'long', month: 'short', day: 'numeric' })}
-                        </h4>
-                        {dayWorkouts.length > 0 && (
-                          <div className="flex items-center space-x-2">
-                            <span className="text-sm text-gray-500">
-                              {dayWorkouts.length} workout{dayWorkouts.length !== 1 ? 's' : ''}
-                            </span>
-                            <span className="text-sm font-medium text-teal-600">
-                              {formatToKm(dayWorkouts.reduce((total, w) => total + w.summary.totalDistance, 0))}
-                            </span>
-                          </div>
-                        )}
+                    <div key={index} className="bg-white rounded-lg shadow-sm p-3">
+                      <div className="text-xs font-medium text-gray-500 mb-2">
+                        {date.toLocaleDateString('default', { weekday: 'short' })}
                       </div>
-                      <div className="space-y-2">
-                        {dayWorkouts?.map((workout) => renderWorkout(workout, true, dateString))}
+                      <div className="space-y-1.5 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Workouts:</span>
+                          <span className="font-medium text-gray-900">{dayWorkouts.length}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Distance:</span>
+                          <span className="font-medium text-teal-600">{formatToKm(totalDistance)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Time:</span>
+                          <span className="font-medium text-gray-900">{formatDuration(totalTime)}</span>
+                        </div>
                       </div>
                     </div>
                   );
                 })}
               </div>
-            </div>
-
-            {/* Weekly Summary */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <WeeklySummary workouts={weekWorkouts} poolType={poolType} />
             </div>
           </div>
         );
@@ -677,22 +856,20 @@ export default function CalendarPage() {
                     sum + workout.summary.totalDistance, 0
                   );
                   
-                  const workoutDays = new Set(
-                    monthWorkouts.map(workout => 
-                      new Date(workout.createdAt).getDate()
-                    )
-                  ).size;
+                  const totalTime = monthWorkouts.reduce((sum, w) => sum + getTotalDuration(w), 0);
+                  const avgDistance = monthWorkouts.length > 0 ? totalDistance / monthWorkouts.length : 0;
+                  const avgTime = monthWorkouts.length > 0 ? totalTime / monthWorkouts.length : 0;
 
                   return (
                     <div
                       key={monthIndex}
-                      className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors cursor-pointer"
-                      onClick={() => {
-                        setCurrentDate(monthStart);
-                        setCurrentView('month');
-                      }}
+                      className="bg-gray-50 rounded-lg p-4"
                     >
-                      <h3 className="font-medium text-gray-900 mb-2">
+                      <h3 className="font-medium text-gray-900 mb-3 hover:text-teal-600 cursor-pointer"
+                          onClick={() => {
+                            setCurrentDate(monthStart);
+                            setCurrentView('month');
+                          }}>
                         {monthStart.toLocaleDateString('default', { month: 'long' })}
                       </h3>
                       {monthWorkouts.length > 0 ? (
@@ -702,12 +879,20 @@ export default function CalendarPage() {
                             <span className="font-medium text-gray-900">{monthWorkouts.length}</span>
                           </div>
                           <div className="flex items-center justify-between text-sm">
-                            <span className="text-gray-600">Active Days:</span>
-                            <span className="font-medium text-gray-900">{workoutDays}</span>
-                          </div>
-                          <div className="flex items-center justify-between text-sm">
                             <span className="text-gray-600">Distance:</span>
                             <span className="font-medium text-teal-600">{formatToKm(totalDistance)}</span>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-gray-600">Duration:</span>
+                            <span className="font-medium text-gray-900">{formatDuration(totalTime)}</span>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-gray-600">Avg Dist:</span>
+                            <span className="font-medium text-gray-900">{formatToKm(avgDistance)}</span>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-gray-600">Avg Time:</span>
+                            <span className="font-medium text-gray-900">{formatDuration(avgTime)}</span>
                           </div>
                         </div>
                       ) : (
@@ -733,6 +918,7 @@ export default function CalendarPage() {
         const monthWorkouts = Object.values(workouts).flat();
         const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
         const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        const weeksInMonth = Math.ceil((firstDayOfMonth + new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate()) / 7);
 
         return (
           <div className="space-y-6">
@@ -755,66 +941,130 @@ export default function CalendarPage() {
               </button>
             </div>
 
-            {/* Calendar Grid */}
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-              {/* Day Headers */}
-              <div className="grid grid-cols-7 gap-px bg-gray-200 border-b">
-                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
-                  <div key={day} className="bg-gray-50 py-2 text-center text-sm font-semibold text-gray-700">
-                    {day}
-                  </div>
-                ))}
+            {/* Calendar Grid with Weekly Summaries */}
+            <div className="grid grid-cols-12 gap-4">
+              {/* Main Calendar */}
+              <div className="col-span-9 bg-white rounded-lg shadow overflow-hidden">
+                {/* Day Headers */}
+                <div className="grid grid-cols-7 gap-px bg-gray-200 border-b">
+                  {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
+                    <div key={day} className="bg-gray-50 py-2 text-center text-sm font-semibold text-gray-700">
+                      {day}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Calendar Days */}
+                <div className="grid grid-cols-7 gap-px bg-gray-200">
+                  {Array.from({ length: weeksInMonth * 7 }).map((_, index) => {
+                    const dayNumber = index - firstDayOfMonth + 1;
+                    const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), dayNumber);
+                    const isCurrentMonth = date.getMonth() === currentDate.getMonth();
+                    const dateString = formatDateString(date);
+                    const dayWorkouts = workouts[dateString] || [];
+
+                    return (
+                      <div
+                        key={index}
+                        className={`bg-white min-h-[120px] p-2 flex flex-col ${
+                          isCurrentMonth ? 'hover:bg-gray-50' : 'bg-gray-50/50'
+                        } ${isToday(date) ? 'ring-2 ring-teal-500' : ''}`}
+                      >
+                        <div className={`font-medium mb-1 text-sm ${
+                          isCurrentMonth ? 'text-gray-700' : 'text-gray-400'
+                        } ${isToday(date) ? 'text-teal-600' : ''}`}>
+                          {date.getDate()}
+                        </div>
+                        {dayWorkouts.length > 0 && (
+                          <div className="flex-1 flex flex-col space-y-1">
+                            <div className="flex flex-wrap gap-1">
+                              <span className={`inline-flex items-center px-1.5 py-0.5 text-xs font-medium ${
+                                isCurrentMonth ? 'text-teal-100 bg-teal-600' : 'text-teal-100 bg-teal-500'
+                              } rounded-full`}>
+                                {dayWorkouts.length}
+                              </span>
+                              <span className={`inline-flex items-center px-1.5 py-0.5 text-xs font-medium ${
+                                isCurrentMonth ? 'text-teal-100 bg-teal-500' : 'text-teal-100 bg-teal-400'
+                              } rounded-full`}>
+                                {formatToKm(dayWorkouts.reduce((total, w) => total + w.summary.totalDistance, 0))}
+                              </span>
+                            </div>
+                            {/* Workouts List */}
+                            <div className="space-y-1 overflow-y-auto max-h-[80px]">
+                              {dayWorkouts.map((workout) => (
+                                <div
+                                  key={workout.id}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedWorkout({ ...workout, date: dateString });
+                                  }}
+                                  className="text-xs bg-gray-50 rounded p-1.5 cursor-pointer hover:bg-gray-100"
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-gray-600">
+                                      {formatToKm(workout.summary.totalDistance)}
+                                    </span>
+                                    <span className="text-gray-500">
+                                      {formatDuration(getTotalDuration(workout))}
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
-              {/* Calendar Days */}
-              <div className="grid grid-cols-7 gap-px bg-gray-200">
-                {Array.from({ length: weeks * 7 }).map((_, index) => {
-                  const dayNumber = index - firstDayOfMonth + 1;
-                  const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), dayNumber);
-                  const isCurrentMonth = date.getMonth() === currentDate.getMonth();
-                  const dateString = formatDateString(date);
-                  const dayWorkouts = workouts[dateString] || [];
+              {/* Weekly Summaries */}
+              <div className="col-span-3 space-y-4">
+                {Array.from({ length: weeksInMonth }).map((_, weekIndex) => {
+                  const weekStart = new Date(monthStart);
+                  weekStart.setDate(weekStart.getDate() - firstDayOfMonth + (weekIndex * 7));
+                  const weekWorkouts = getWeekWorkouts(weekStart);
+                  
+                  if (weekWorkouts.length === 0) return null;
+
+                  const totalDistance = weekWorkouts.reduce((sum, w) => sum + w.summary.totalDistance, 0);
+                  const totalTime = weekWorkouts.reduce((sum, w) => sum + getTotalDuration(w), 0);
+                  const avgDistance = totalDistance / weekWorkouts.length;
+                  const avgTime = totalTime / weekWorkouts.length;
 
                   return (
-                    <div
-                      key={index}
-                      className={`bg-white min-h-[140px] p-3 flex flex-col ${
-                        isCurrentMonth ? 'hover:bg-gray-50 cursor-pointer' : 'bg-gray-50/50'
-                      } ${isToday(date) ? 'ring-2 ring-teal-500' : ''}`}
-                    >
-                      <div className={`font-medium mb-2 text-sm ${
-                        isCurrentMonth ? 'text-gray-700' : 'text-gray-400'
-                      } ${isToday(date) ? 'text-teal-600' : ''}`}>
-                        {date.getDate()}
+                    <div key={weekIndex} className="bg-white rounded-lg shadow-sm p-3">
+                      <div className="text-xs font-medium text-gray-500 mb-2">
+                        Week {weekIndex + 1}
                       </div>
-                      {dayWorkouts.length > 0 && (
-                        <div className="flex-1 flex flex-col">
-                          <div className="flex flex-wrap gap-1.5">
-                            <span className={`inline-flex items-center px-2 py-1 text-xs font-medium ${
-                              isCurrentMonth ? 'text-teal-100 bg-teal-600' : 'text-teal-100 bg-teal-500'
-                            } rounded-full`}>
-                              {dayWorkouts.length} workout{dayWorkouts.length !== 1 ? 's' : ''}
-                            </span>
-                            <span className={`inline-flex items-center px-2 py-1 text-xs font-medium ${
-                              isCurrentMonth ? 'text-teal-100 bg-teal-500' : 'text-teal-100 bg-teal-400'
-                            } rounded-full`}>
-                              {formatToKm(dayWorkouts.reduce((total, w) => total + w.summary.totalDistance, 0))}
-                            </span>
-                          </div>
+                      <div className="space-y-1.5 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Workouts:</span>
+                          <span className="font-medium text-gray-900">{weekWorkouts.length}</span>
                         </div>
-                      )}
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Distance:</span>
+                          <span className="font-medium text-teal-600">{formatToKm(totalDistance)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Time:</span>
+                          <span className="font-medium text-gray-900">{formatDuration(totalTime)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Avg Distance:</span>
+                          <span className="font-medium text-gray-900">{formatToKm(avgDistance)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Avg Time:</span>
+                          <span className="font-medium text-gray-900">{formatDuration(avgTime)}</span>
+                        </div>
+                      </div>
                     </div>
                   );
                 })}
               </div>
             </div>
-
-            {/* Monthly Summary */}
-            <MonthSummary 
-              workouts={monthWorkouts} 
-              poolType={poolType} 
-              daysInMonth={new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate()} 
-            />
           </div>
         );
       }
