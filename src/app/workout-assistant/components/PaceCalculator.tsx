@@ -36,14 +36,15 @@ export default function PaceCalculator() {
       <div className="space-y-6">
         {/* Distance Input */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="distance" className="block text-sm font-medium text-gray-700 mb-2">
             Distance (meters)
           </label>
           <input
+            id="distance"
             type="number"
             value={distance}
             onChange={(e) => setDistance(e.target.value)}
-            className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+            className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-900"
             placeholder="Enter distance in meters"
           />
         </div>
@@ -55,32 +56,38 @@ export default function PaceCalculator() {
           </label>
           <div className="grid grid-cols-3 gap-4">
             <div>
+              <label htmlFor="hours" className="block text-xs text-gray-500 mb-1">Hours</label>
               <input
+                id="hours"
                 type="number"
                 value={time.hours}
                 onChange={(e) => setTime({ ...time, hours: e.target.value })}
-                className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-900"
                 placeholder="Hours"
                 min="0"
               />
             </div>
             <div>
+              <label htmlFor="minutes" className="block text-xs text-gray-500 mb-1">Minutes</label>
               <input
+                id="minutes"
                 type="number"
                 value={time.minutes}
                 onChange={(e) => setTime({ ...time, minutes: e.target.value })}
-                className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-900"
                 placeholder="Minutes"
                 min="0"
                 max="59"
               />
             </div>
             <div>
+              <label htmlFor="seconds" className="block text-xs text-gray-500 mb-1">Seconds</label>
               <input
+                id="seconds"
                 type="number"
                 value={time.seconds}
                 onChange={(e) => setTime({ ...time, seconds: e.target.value })}
-                className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-900"
                 placeholder="Seconds"
                 min="0"
                 max="59"

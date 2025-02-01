@@ -147,7 +147,9 @@ export default function WorkoutAssistant() {
   };
 
   const useTemplate = (template: WorkoutTemplate) => {
-    setInputMessage(`Create a workout based on the ${template.title} template, focusing on ${template.focus.join(' and ')}`);
+    const message = `Create a workout based on the ${template.title} template, focusing on ${template.focus.join(' and ')}`;
+    setInputMessage(message);
+    handleSendMessage();
   };
 
   const handleToolClick = (tool: Tool) => {

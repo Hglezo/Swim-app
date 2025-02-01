@@ -5,6 +5,10 @@ import { FaSwimmer, FaArrowLeft, FaArrowRight, FaHome, FaCalendarAlt, FaChartLin
 import { MdDashboard, MdPerson } from 'react-icons/md';
 import { useState, useEffect } from 'react';
 import { usePreferences } from '@/contexts/PreferencesContext';
+import DailySummary from './components/DailySummary';
+import WeeklySummary from './components/WeeklySummary';
+import MonthSummary from './components/MonthSummary';
+import YearSummary from './components/YearSummary';
 
 type Workout = {
   id: string;
@@ -38,20 +42,7 @@ interface UserPreferences {
   weekStart: 'monday' | 'sunday';
 }
 
-type SelectedWorkout = {
-  id: string;
-  date: string;
-  text: string;
-  summary: {
-    totalDistance: number;
-    strokeDistances: {
-      [key: string]: number;
-    };
-    intensityDistances: {
-      [key: string]: number;
-    };
-  };
-} | null;
+type SelectedWorkout = (Workout & { date: string }) | null;
 
 // Helper function to format to km
 const formatToKm = (meters: number) => {
@@ -59,8 +50,8 @@ const formatToKm = (meters: number) => {
 };
 
 // Helper function to format date string
-const formatDateString = (date: Date) => {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+const formatDateString = (date: Date): string => {
+  return date.toISOString().split('T')[0];
 };
 
 const WorkoutDetailModal = ({ 
@@ -479,131 +470,354 @@ export default function CalendarPage() {
     </div>
   );
 
-  // Render the appropriate view component
+  // Add navigation functions
+  const goToPreviousMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+  };
+
+  const goToNextMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+  };
+
+  // Helper function to get workouts for a specific week
+  const getWeekWorkouts = (weekStartDate: Date) => {
+    const weekWorkouts = Array.from({ length: 7 }).map((_, index) => {
+      const date = new Date(weekStartDate);
+      date.setDate(weekStartDate.getDate() + index);
+      const dateString = formatDateString(date);
+      return workouts[dateString] || [];
+    }).flat();
+    return weekWorkouts;
+  };
+
+  // Modify the renderCalendarView function to handle 'today' view
   const renderCalendarView = () => {
     switch (currentView) {
-      case 'day':
-        const dayWorkouts = workouts[formatDateString(currentDate)];
+      case 'today':
+      case 'day': {
+        const dayWorkouts = workouts[formatDateString(currentDate)] || [];
+        const isTodays = currentView === 'today' && isToday(currentDate);
+        
         return (
-          <div className="flex-1 bg-white rounded-lg shadow overflow-hidden">
-            <div className="p-4">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                {currentDate.toLocaleDateString('default', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-              </h3>
-              <div className="space-y-2">
-                {dayWorkouts?.map((workout) => renderWorkout(workout, true, formatDateString(currentDate)))}
+          <div className="space-y-6">
+            {/* Day Navigation */}
+            <div className="flex items-center justify-between bg-white rounded-lg shadow-sm p-4 w-fit mx-auto">
+              <button
+                onClick={() => {
+                  const newDate = new Date(currentDate);
+                  newDate.setDate(currentDate.getDate() - 1);
+                  setCurrentDate(newDate);
+                  if (currentView === 'today') {
+                    setCurrentView('day');
+                  }
+                }}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <FaArrowLeft className="h-5 w-5 text-gray-600" />
+              </button>
+              <h2 className="text-xl font-semibold text-gray-900 mx-4">
+                {isTodays ? 'Today' : currentDate.toLocaleDateString('default', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+              </h2>
+              <button
+                onClick={() => {
+                  const newDate = new Date(currentDate);
+                  newDate.setDate(currentDate.getDate() + 1);
+                  setCurrentDate(newDate);
+                  if (currentView === 'today') {
+                    setCurrentView('day');
+                  }
+                }}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <FaArrowRight className="h-5 w-5 text-gray-600" />
+              </button>
+            </div>
+
+            <div className="flex-1 bg-white rounded-lg shadow overflow-hidden">
+              <div className="p-4">
+                <div className="space-y-4">
+                  {/* Daily Summary */}
+                  {dayWorkouts && <DailySummary workouts={dayWorkouts} poolType={poolType} />}
+                  {/* Workouts List */}
+                  <div className="space-y-2">
+                    {dayWorkouts?.map((workout) => renderWorkout(workout, true, formatDateString(currentDate)))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         );
+      }
 
-      case 'week':
+      case 'week': {
+        const weekWorkouts = Array.from({ length: 7 }).map((_, index) => {
+          const date = new Date(currentDate);
+          date.setDate(currentDate.getDate() - currentDate.getDay() + index + 1);
+          const dateString = formatDateString(date);
+          return workouts[dateString] || [];
+        }).flat();
+
         return (
-          <div className="flex-1 bg-white rounded-lg shadow overflow-hidden">
-            <div className="grid grid-cols-7 gap-4 p-4">
-              {Array.from({ length: 7 }).map((_, index) => {
-                const date = new Date(currentDate);
-                date.setDate(currentDate.getDate() - currentDate.getDay() + index + 1);
-                const dateString = formatDateString(date);
-                const dayWorkouts = workouts[dateString];
+          <div className="space-y-6">
+            {/* Week Navigation */}
+            <div className="flex items-center justify-between bg-white rounded-lg shadow-sm p-4 w-fit mx-auto">
+              <button
+                onClick={() => {
+                  const newDate = new Date(currentDate);
+                  newDate.setDate(currentDate.getDate() - 7);
+                  setCurrentDate(newDate);
+                }}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <FaArrowLeft className="h-5 w-5 text-gray-600" />
+              </button>
+              <h2 className="text-xl font-semibold text-gray-900 mx-4">
+                {`Week of ${currentDate.toLocaleDateString('default', { month: 'long', day: 'numeric', year: 'numeric' })}`}
+              </h2>
+              <button
+                onClick={() => {
+                  const newDate = new Date(currentDate);
+                  newDate.setDate(currentDate.getDate() + 7);
+                  setCurrentDate(newDate);
+                }}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <FaArrowRight className="h-5 w-5 text-gray-600" />
+              </button>
+            </div>
+            
+            {/* Week View Grid */}
+            <div className="flex-1 bg-white rounded-lg shadow overflow-hidden">
+              <div className="grid grid-cols-1 divide-y">
+                {Array.from({ length: 5 }).map((_, index) => {
+                  const date = new Date(currentDate);
+                  date.setDate(currentDate.getDate() - currentDate.getDay() + index + 1);
+                  const dateString = formatDateString(date);
+                  const dayWorkouts = workouts[dateString] || [];
 
-                return (
-                  <div key={index} className={`bg-gray-50 rounded-lg p-4 flex flex-col ${
-                    isToday(date) ? 'ring-2 ring-teal-500' : ''
-                  }`}>
-                    <div className="mb-2">
-                      <h4 className={`font-medium ${
-                        isToday(date) ? 'text-teal-600' : 'text-gray-900'
-                      }`}>
-                        {date.toLocaleDateString('default', { weekday: 'short', day: 'numeric' })}
-                      </h4>
-                    </div>
-                    <div className="flex-grow space-y-2">
-                      {dayWorkouts?.map((workout) => renderWorkout(workout, true, dateString))}
-                      </div>
-                    {dayWorkouts && (
-                      <div className="mt-2 pt-2 border-t border-gray-200 text-sm text-gray-500">
-                        <div className="flex justify-between">
-                          <span>{dayWorkouts.length} workout{dayWorkouts.length !== 1 ? 's' : ''}</span>
-                          <span>{formatToKm(dayWorkouts.reduce((total, w) => total + w.summary.totalDistance, 0))}</span>
-                            </div>
+                  return (
+                    <div key={index} className={`p-4 ${
+                      isToday(date) ? 'bg-teal-50' : 'hover:bg-gray-50'
+                    }`}>
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className={`font-medium ${
+                          isToday(date) ? 'text-teal-600' : 'text-gray-900'
+                        }`}>
+                          {date.toLocaleDateString('default', { weekday: 'long', month: 'short', day: 'numeric' })}
+                        </h4>
+                        {dayWorkouts.length > 0 && (
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm text-gray-500">
+                              {dayWorkouts.length} workout{dayWorkouts.length !== 1 ? 's' : ''}
+                            </span>
+                            <span className="text-sm font-medium text-teal-600">
+                              {formatToKm(dayWorkouts.reduce((total, w) => total + w.summary.totalDistance, 0))}
+                            </span>
                           </div>
-                    )}
-                  </div>
-                );
-              })}
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        {dayWorkouts?.map((workout) => renderWorkout(workout, true, dateString))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Weekly Summary */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <WeeklySummary workouts={weekWorkouts} poolType={poolType} />
             </div>
           </div>
         );
+      }
 
-      default: // month view
+      case 'year': {
+        const yearWorkouts = Object.values(workouts).flat();
         return (
-          <div className="flex-1 bg-white rounded-lg shadow overflow-hidden">
-            {/* Day Headers */}
-            <div className="grid grid-cols-7 gap-px bg-gray-200 border-b">
-              {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
-                <div key={day} className="bg-gray-50 py-1.5 text-center text-xs font-semibold text-gray-700">
-                  {day}
-                </div>
-              ))}
+          <div className="space-y-6">
+            {/* Year Navigation */}
+            <div className="flex items-center justify-between bg-white rounded-lg shadow-sm p-4 w-fit mx-auto">
+              <button
+                onClick={() => {
+                  const newDate = new Date(currentDate.getFullYear() - 1, currentDate.getMonth(), 1);
+                  setCurrentDate(newDate);
+                }}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <FaArrowLeft className="h-5 w-5 text-gray-600" />
+              </button>
+              <h2 className="text-xl font-semibold text-gray-900 mx-4">
+                {currentDate.getFullYear()}
+              </h2>
+              <button
+                onClick={() => {
+                  const newDate = new Date(currentDate.getFullYear() + 1, currentDate.getMonth(), 1);
+                  setCurrentDate(newDate);
+                }}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <FaArrowRight className="h-5 w-5 text-gray-600" />
+              </button>
             </div>
 
-            {/* Calendar Days */}
-            <div className="grid grid-cols-7 gap-px bg-gray-200">
-              {Array.from({ length: weeks * 7 }).map((_, index) => {
-                const dayNumber = index - firstDayOfMonth + 1;
-                const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), dayNumber);
-                const isCurrentMonth = date.getMonth() === currentDate.getMonth();
-                const dateString = formatDateString(date);
-                const dayWorkouts = workouts[dateString];
+            {/* Year Calendar Grid */}
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+              <div className="grid grid-cols-3 md:grid-cols-4 gap-4 p-6">
+                {Array.from({ length: 12 }).map((_, monthIndex) => {
+                  const monthStart = new Date(currentDate.getFullYear(), monthIndex, 1);
+                  const monthWorkouts = yearWorkouts.filter(workout => {
+                    const workoutDate = new Date(workout.createdAt);
+                    return workoutDate.getMonth() === monthIndex && 
+                           workoutDate.getFullYear() === currentDate.getFullYear();
+                  });
+                  
+                  const totalDistance = monthWorkouts.reduce((sum, workout) => 
+                    sum + workout.summary.totalDistance, 0
+                  );
+                  
+                  const workoutDays = new Set(
+                    monthWorkouts.map(workout => 
+                      new Date(workout.createdAt).getDate()
+                    )
+                  ).size;
 
-                return (
-                  <div
-                    key={index}
-                    className={`bg-white h-[160px] p-3 flex flex-col ${
-                      isCurrentMonth ? 'hover:bg-gray-50 cursor-pointer' : 'bg-gray-50/50'
-                    } ${isToday(date) ? 'ring-2 ring-teal-500' : ''}`}
-                  >
-                    <div className={`font-medium mb-1 text-base ${
-                      isCurrentMonth ? 'text-gray-700' : 'text-gray-400'
-                    } ${isToday(date) ? 'text-teal-600' : ''}`}>
-                      {date.getDate()}
-                    </div>
-                    {dayWorkouts && (
-                      <div className="flex-1 flex flex-col">
-                        <div className="flex flex-wrap gap-1">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 text-sm font-medium leading-none ${
-                            isCurrentMonth ? 'text-teal-100 bg-teal-600' : 'text-teal-100 bg-teal-500'
-                          } rounded-full`}>
-                            {dayWorkouts.length} workout{dayWorkouts.length > 1 ? 's' : ''}
-                          </span>
-                          <span className={`inline-flex items-center px-2.5 py-0.5 text-sm font-medium leading-none ${
-                            isCurrentMonth ? 'text-teal-100 bg-teal-500' : 'text-teal-100 bg-teal-400'
-                          } rounded-full`}>
-                            {formatToKm(dayWorkouts.reduce((total, w) => total + w.summary.totalDistance, 0))}
-                          </span>
-                        </div>
-                        <div className="space-y-1 flex-grow">
-                          {dayWorkouts.map((workout) => renderWorkout(workout, isCurrentMonth, dateString))}
-                              </div>
-                        <div className="flex justify-between text-sm text-gray-500 mt-2 pt-2 border-t">
-                          <div className="flex items-center">
-                            <FaSwimmer className="h-3 w-3 mr-1.5 flex-shrink-0 text-teal-500" />
-                            <span>{formatToKm(dayWorkouts.reduce((total, w) => total + w.summary.totalDistance, 0))}</span>
-                            </div>
-                          <div className="flex items-center">
-                            <FaClock className="h-3 w-3 mr-1.5 flex-shrink-0" />
-                            <span>{formatDuration(dayWorkouts.reduce((total, w) => total + getTotalDuration(w), 0))}</span>
+                  return (
+                    <div
+                      key={monthIndex}
+                      className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors cursor-pointer"
+                      onClick={() => {
+                        setCurrentDate(monthStart);
+                        setCurrentView('month');
+                      }}
+                    >
+                      <h3 className="font-medium text-gray-900 mb-2">
+                        {monthStart.toLocaleDateString('default', { month: 'long' })}
+                      </h3>
+                      {monthWorkouts.length > 0 ? (
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-gray-600">Workouts:</span>
+                            <span className="font-medium text-gray-900">{monthWorkouts.length}</span>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-gray-600">Active Days:</span>
+                            <span className="font-medium text-gray-900">{workoutDays}</span>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-gray-600">Distance:</span>
+                            <span className="font-medium text-teal-600">{formatToKm(totalDistance)}</span>
                           </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+                      ) : (
+                        <div className="text-sm text-gray-500 italic">No workouts</div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
+
+            {/* Yearly Summary */}
+            <YearSummary 
+              workouts={yearWorkouts} 
+              poolType={poolType} 
+              year={currentDate.getFullYear()} 
+            />
           </div>
         );
+      }
+
+      default: { // month view
+        const monthWorkouts = Object.values(workouts).flat();
+        const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
+        const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+
+        return (
+          <div className="space-y-6">
+            {/* Month Navigation */}
+            <div className="flex items-center justify-between bg-white rounded-lg shadow-sm p-4 w-fit mx-auto">
+              <button
+                onClick={goToPreviousMonth}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <FaArrowLeft className="h-5 w-5 text-gray-600" />
+              </button>
+              <h2 className="text-xl font-semibold text-gray-900 mx-4">
+                {currentDate.toLocaleDateString('default', { month: 'long', year: 'numeric' })}
+              </h2>
+              <button
+                onClick={goToNextMonth}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <FaArrowRight className="h-5 w-5 text-gray-600" />
+              </button>
+            </div>
+
+            {/* Calendar Grid */}
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+              {/* Day Headers */}
+              <div className="grid grid-cols-7 gap-px bg-gray-200 border-b">
+                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
+                  <div key={day} className="bg-gray-50 py-2 text-center text-sm font-semibold text-gray-700">
+                    {day}
+                  </div>
+                ))}
+              </div>
+
+              {/* Calendar Days */}
+              <div className="grid grid-cols-7 gap-px bg-gray-200">
+                {Array.from({ length: weeks * 7 }).map((_, index) => {
+                  const dayNumber = index - firstDayOfMonth + 1;
+                  const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), dayNumber);
+                  const isCurrentMonth = date.getMonth() === currentDate.getMonth();
+                  const dateString = formatDateString(date);
+                  const dayWorkouts = workouts[dateString] || [];
+
+                  return (
+                    <div
+                      key={index}
+                      className={`bg-white min-h-[140px] p-3 flex flex-col ${
+                        isCurrentMonth ? 'hover:bg-gray-50 cursor-pointer' : 'bg-gray-50/50'
+                      } ${isToday(date) ? 'ring-2 ring-teal-500' : ''}`}
+                    >
+                      <div className={`font-medium mb-2 text-sm ${
+                        isCurrentMonth ? 'text-gray-700' : 'text-gray-400'
+                      } ${isToday(date) ? 'text-teal-600' : ''}`}>
+                        {date.getDate()}
+                      </div>
+                      {dayWorkouts.length > 0 && (
+                        <div className="flex-1 flex flex-col">
+                          <div className="flex flex-wrap gap-1.5">
+                            <span className={`inline-flex items-center px-2 py-1 text-xs font-medium ${
+                              isCurrentMonth ? 'text-teal-100 bg-teal-600' : 'text-teal-100 bg-teal-500'
+                            } rounded-full`}>
+                              {dayWorkouts.length} workout{dayWorkouts.length !== 1 ? 's' : ''}
+                            </span>
+                            <span className={`inline-flex items-center px-2 py-1 text-xs font-medium ${
+                              isCurrentMonth ? 'text-teal-100 bg-teal-500' : 'text-teal-100 bg-teal-400'
+                            } rounded-full`}>
+                              {formatToKm(dayWorkouts.reduce((total, w) => total + w.summary.totalDistance, 0))}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Monthly Summary */}
+            <MonthSummary 
+              workouts={monthWorkouts} 
+              poolType={poolType} 
+              daysInMonth={new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate()} 
+            />
+          </div>
+        );
+      }
     }
   };
 
@@ -649,35 +863,33 @@ export default function CalendarPage() {
         <div className="flex justify-between items-center mb-8">
           <div className="flex space-x-4">
             <button 
-              onClick={() => setCurrentView('day')}
+              onClick={() => {
+                setCurrentDate(new Date());
+                setCurrentView('today');
+              }}
               className={`px-4 py-2 rounded-md ${
-                currentView === 'day' ? 'bg-teal-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
+                currentView === 'today' ? 'bg-teal-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
               }`}
             >
-              Day
+              Today
             </button>
-            <button 
-              onClick={() => setCurrentView('week')}
-              className={`px-4 py-2 rounded-md ${
-                currentView === 'week' ? 'bg-teal-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              Week
-            </button>
-              <button
-              onClick={() => setCurrentView('month')}
-              className={`px-4 py-2 rounded-md ${
-                currentView === 'month' ? 'bg-teal-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              Month
+            {(['day', 'week', 'month', 'year'] as const).map((view) => (
+              <button 
+                key={view}
+                onClick={() => setCurrentView(view)}
+                className={`px-4 py-2 rounded-md ${
+                  currentView === view ? 'bg-teal-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                {view.charAt(0).toUpperCase() + view.slice(1)}
               </button>
+            ))}
           </div>
         </div>
 
         {/* Calendar view */}
-          {renderCalendarView()}
-          
+        {renderCalendarView()}
+        
         {/* Workout detail modal */}
         {selectedWorkout && (
           <WorkoutDetailModal

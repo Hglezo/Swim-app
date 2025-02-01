@@ -67,7 +67,7 @@ export default function Home() {
                 href="/write-workout"
                 className="bg-teal-500 text-white px-8 py-3 rounded-full font-semibold hover:bg-teal-600 transition-colors"
               >
-                Write your workout
+                Design Your Workout
               </Link>
               <Link 
                 href="/workout-assistant"

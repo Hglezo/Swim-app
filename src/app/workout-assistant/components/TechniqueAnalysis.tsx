@@ -118,7 +118,7 @@ export default function TechniqueAnalysis() {
           <select
             value={selectedStroke}
             onChange={(e) => setSelectedStroke(e.target.value)}
-            className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+            className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-900 bg-white"
           >
             <option value="">Choose a stroke...</option>
             {Object.keys(strokes).map((stroke) => (
