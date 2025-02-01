@@ -134,7 +134,7 @@ Return only the JSON object with no additional text.`;
         return NextResponse.json(parsedWorkout);
       } catch (parseError) {
         console.error('Error parsing OpenAI response:', parseError);
-        throw new Error(`Failed to parse OpenAI response: ${parseError.message}`);
+        throw new Error(`Failed to parse OpenAI response: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`);
       }
     } catch (error) {
       console.error('Error in OpenAI request:', error);

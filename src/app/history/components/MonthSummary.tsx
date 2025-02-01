@@ -2,8 +2,25 @@
 
 import { FaSwimmer, FaChartLine } from 'react-icons/fa';
 
+interface WorkoutSummary {
+  totalDistance: number;
+  strokeDistances: {
+    [key: string]: number;
+  };
+  intensityDistances: {
+    [key: string]: number;
+  };
+}
+
+interface Workout {
+  id: string;
+  text: string;
+  summary: WorkoutSummary;
+  createdAt: string;
+}
+
 interface MonthSummaryProps {
-  workouts: any[];
+  workouts: Workout[];
   poolType: string;
   daysInMonth: number;
 }
