@@ -22,13 +22,65 @@ const ProfilePage: React.FC = () => {
       { name: "Early Bird", date: "January 2024" },
     ]
   });
+  const [emailError, setEmailError] = useState<string | null>(null);
+
+  const validateEmail = (email: string): boolean => {
+    // More comprehensive email validation
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    
+    if (!emailRegex.test(email)) {
+      setEmailError('Please enter a valid email address (e.g., name@domain.com)');
+      return false;
+    }
+
+    // Additional checks for common invalid patterns
+    if (email.startsWith('.') || email.endsWith('.')) {
+      setEmailError('Email cannot start or end with a dot');
+      return false;
+    }
+
+    if (email.includes('..')) {
+      setEmailError('Email cannot contain consecutive dots');
+      return false;
+    }
+
+    const [localPart, domain] = email.split('@');
+    if (localPart.length > 64) {
+      setEmailError('Username part of email is too long');
+      return false;
+    }
+
+    if (domain.length > 255) {
+      setEmailError('Domain part of email is too long');
+      return false;
+    }
+
+    if (!domain.includes('.')) {
+      setEmailError('Email must have a valid domain (e.g., example.com)');
+      return false;
+    }
+
+    const topLevelDomain = domain.split('.').pop() || '';
+    if (topLevelDomain.length < 2) {
+      setEmailError('Email must have a valid domain extension (.com, .org, etc.)');
+      return false;
+    }
+
+    return true;
+  };
 
   const handleEditToggle = () => {
     if (isEditing) {
+      // Validate email before saving
+      if (!validateEmail(editedUser.email)) {
+        return;
+      }
+      setEmailError(null);
       // Save changes here (in a real app, this would make an API call)
       setIsEditing(false);
     } else {
       setIsEditing(true);
+      setEmailError(null);
     }
   };
 
@@ -37,6 +89,10 @@ const ProfilePage: React.FC = () => {
       ...prev,
       [field]: value
     }));
+    // Clear email error when user starts typing
+    if (field === 'email') {
+      setEmailError(null);
+    }
   };
 
   const handlePreferenceChange = (key: keyof typeof preferences, value: string) => {
@@ -173,12 +229,22 @@ const ProfilePage: React.FC = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-600">Email</label>
                 {isEditing ? (
-                  <input
-                    type="email"
-                    value={editedUser.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                    className="mt-1 block w-full rounded-md border-2 border-gray-300 bg-white text-gray-900 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-2 px-3"
-                  />
+                  <div>
+                    <input
+                      type="email"
+                      value={editedUser.email}
+                      onChange={(e) => handleInputChange('email', e.target.value)}
+                      className={`mt-1 block w-full rounded-md border-2 ${
+                        emailError ? 'border-red-300' : 'border-gray-300'
+                      } bg-white text-gray-900 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-2 px-3`}
+                    />
+                    {emailError && (
+                      <p className="mt-1 text-sm text-red-500 flex items-center">
+                        <FaExclamationTriangle className="h-4 w-4 mr-1" />
+                        {emailError}
+                      </p>
+                    )}
+                  </div>
                 ) : (
                   <p className="mt-1 text-gray-900">{editedUser.email}</p>
                 )}
