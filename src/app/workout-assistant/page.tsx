@@ -349,7 +349,7 @@ export default function WorkoutAssistant() {
                       onChange={(e) => setInputMessage(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                       placeholder="Ask about workouts, techniques, or training plans..."
-                      className="flex-1 border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      className="flex-1 border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-900 placeholder-gray-500 bg-white"
                     />
                     <button
                       onClick={handleSendMessage}

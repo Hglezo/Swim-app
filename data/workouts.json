@@ -17,6 +17,23 @@
       },
       "createdAt": "2025-02-01T14:38:10.433Z",
       "updatedAt": "2025-02-01T14:39:56.318Z"
+    },
+    {
+      "id": "1738444992049",
+      "text": "400 4x100 4x50\n200 fly ",
+      "summary": {
+        "totalDistance": 1200,
+        "strokeDistances": {
+          "freestyle": 1000,
+          "backstroke": 0,
+          "breaststroke": 0,
+          "butterfly": 200,
+          "im": 0,
+          "choice": 0
+        },
+        "intensityDistances": {}
+      },
+      "createdAt": "2025-02-01T21:23:12.049Z"
     }
   ]
 }
