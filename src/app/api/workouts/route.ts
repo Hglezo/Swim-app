@@ -135,4 +135,120 @@ export async function GET(request: Request) {
       { status: 500 }
     );
   }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const date = searchParams.get('date');
+    const workoutId = searchParams.get('id');
+
+    if (!date || !workoutId) {
+      return NextResponse.json(
+        { error: 'Date and workout ID are required' },
+        { status: 400 }
+      );
+    }
+
+    // Load existing workouts
+    const workouts = loadWorkouts();
+    const dateKey = new Date(date).toISOString().split('T')[0];
+
+    // Check if we have workouts for this date
+    if (!workouts[dateKey]) {
+      return NextResponse.json(
+        { error: 'No workouts found for this date' },
+        { status: 404 }
+      );
+    }
+
+    // Filter out the workout with the matching ID
+    const filteredWorkouts = workouts[dateKey].filter(
+      workout => workout.id !== workoutId
+    );
+
+    // If no workouts left for this date, remove the date entry
+    if (filteredWorkouts.length === 0) {
+      delete workouts[dateKey];
+    } else {
+      workouts[dateKey] = filteredWorkouts;
+    }
+
+    // Save updated workouts
+    if (!saveWorkouts(workouts)) {
+      throw new Error('Failed to save updated workouts');
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting workout:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to delete workout' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const date = searchParams.get('date');
+    const workoutId = searchParams.get('id');
+    const { text, summary } = await request.json();
+
+    if (!date || !workoutId || !text || !summary) {
+      return NextResponse.json(
+        { error: 'Date, workout ID, text, and summary are required' },
+        { status: 400 }
+      );
+    }
+
+    // Load existing workouts
+    const workouts = loadWorkouts();
+    const dateKey = new Date(date).toISOString().split('T')[0];
+
+    // Check if we have workouts for this date
+    if (!workouts[dateKey]) {
+      return NextResponse.json(
+        { error: 'No workouts found for this date' },
+        { status: 404 }
+      );
+    }
+
+    // Find and update the workout
+    const workoutIndex = workouts[dateKey].findIndex(
+      workout => workout.id === workoutId
+    );
+
+    if (workoutIndex === -1) {
+      return NextResponse.json(
+        { error: 'Workout not found' },
+        { status: 404 }
+      );
+    }
+
+    // Update the workout text and summary while preserving other properties
+    workouts[dateKey][workoutIndex] = {
+      ...workouts[dateKey][workoutIndex],
+      text,
+      summary,
+      updatedAt: new Date().toISOString()
+    };
+
+    // Save updated workouts
+    if (!saveWorkouts(workouts)) {
+      throw new Error('Failed to save updated workout');
+    }
+
+    return NextResponse.json({ 
+      success: true,
+      workout: workouts[dateKey][workoutIndex]
+    });
+  } catch (error) {
+    console.error('Error updating workout:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to update workout' },
+      { status: 500 }
+    );
+  }
 } 
