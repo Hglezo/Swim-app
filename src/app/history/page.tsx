@@ -475,14 +475,14 @@ export default function CalendarPage() {
                     </div>
                     <div className="flex-grow space-y-2">
                       {dayWorkouts?.map((workout) => renderWorkout(workout, true, dateString))}
-                    </div>
+                      </div>
                     {dayWorkouts && (
                       <div className="mt-2 pt-2 border-t border-gray-200 text-sm text-gray-500">
                         <div className="flex justify-between">
                           <span>{dayWorkouts.length} workout{dayWorkouts.length !== 1 ? 's' : ''}</span>
                           <span>{formatToKm(dayWorkouts.reduce((total, w) => total + w.summary.totalDistance, 0))}</span>
-                        </div>
-                      </div>
+                            </div>
+                          </div>
                     )}
                   </div>
                 );
@@ -540,12 +540,12 @@ export default function CalendarPage() {
                         </div>
                         <div className="space-y-1 flex-grow">
                           {dayWorkouts.map((workout) => renderWorkout(workout, isCurrentMonth, dateString))}
-                        </div>
+                              </div>
                         <div className="flex justify-between text-sm text-gray-500 mt-2 pt-2 border-t">
                           <div className="flex items-center">
                             <FaSwimmer className="h-3 w-3 mr-1.5 flex-shrink-0 text-teal-500" />
                             <span>{formatToKm(dayWorkouts.reduce((total, w) => total + w.summary.totalDistance, 0))}</span>
-                          </div>
+                            </div>
                           <div className="flex items-center">
                             <FaClock className="h-3 w-3 mr-1.5 flex-shrink-0" />
                             <span>{formatDuration(dayWorkouts.reduce((total, w) => total + getTotalDuration(w), 0))}</span>
@@ -603,7 +603,7 @@ export default function CalendarPage() {
         {/* View selection buttons */}
         <div className="flex justify-between items-center mb-8">
           <div className="flex space-x-4">
-            <button
+            <button 
               onClick={() => setCurrentView('day')}
               className={`px-4 py-2 rounded-md ${
                 currentView === 'day' ? 'bg-teal-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
@@ -611,7 +611,7 @@ export default function CalendarPage() {
             >
               Day
             </button>
-            <button
+            <button 
               onClick={() => setCurrentView('week')}
               className={`px-4 py-2 rounded-md ${
                 currentView === 'week' ? 'bg-teal-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
@@ -619,20 +619,20 @@ export default function CalendarPage() {
             >
               Week
             </button>
-            <button
+              <button
               onClick={() => setCurrentView('month')}
               className={`px-4 py-2 rounded-md ${
                 currentView === 'month' ? 'bg-teal-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
               }`}
             >
               Month
-            </button>
+              </button>
           </div>
         </div>
 
         {/* Calendar view */}
-        {renderCalendarView()}
-
+          {renderCalendarView()}
+          
         {/* Workout detail modal */}
         {selectedWorkout && (
           <WorkoutDetailModal
