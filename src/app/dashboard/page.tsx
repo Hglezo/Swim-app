@@ -88,10 +88,9 @@ const formatDuration = (minutes: number): string => {
 };
 
 const DashboardPage: React.FC = () => {
-  const mockWorkouts = generateAllWorkouts();
   const currentDate = new Date();
 
-  // Calculate current month's stats
+  // Initialize empty current month stats
   const currentMonthStats = {
     totalWorkouts: 0,
     totalDistance: 0,
@@ -101,34 +100,6 @@ const DashboardPage: React.FC = () => {
     longestWorkout: 0,
     fastestPace: 0,
   };
-
-  Object.entries(mockWorkouts).forEach(([date, workout]) => {
-    const workoutDate = new Date(date);
-    if (workoutDate.getMonth() === currentDate.getMonth() && 
-        workoutDate.getFullYear() === currentDate.getFullYear()) {
-      currentMonthStats.totalWorkouts += workout.count;
-      const dayDistance = workout.meters.reduce((sum, m) => sum + m, 0);
-      currentMonthStats.totalDistance += dayDistance;
-      const dayDuration = workout.durations.reduce((sum, duration) => {
-        const [hours, minutes] = duration.split(':').map(Number);
-        return sum + hours * 60 + minutes;
-      }, 0);
-      currentMonthStats.totalDuration += dayDuration;
-      currentMonthStats.longestWorkout = Math.max(currentMonthStats.longestWorkout, ...workout.meters);
-      
-      // Calculate pace (minutes per km) for each workout
-      workout.meters.forEach((meters, i) => {
-        const [hours, minutes] = workout.durations[i].split(':').map(Number);
-        const durationMinutes = hours * 60 + minutes;
-        const pace = (durationMinutes / (meters / 1000));
-        if (currentMonthStats.fastestPace === 0) currentMonthStats.fastestPace = pace;
-        else currentMonthStats.fastestPace = Math.min(currentMonthStats.fastestPace, pace);
-      });
-    }
-  });
-
-  currentMonthStats.averageDistance = currentMonthStats.totalDistance / currentMonthStats.totalWorkouts;
-  currentMonthStats.averageDuration = currentMonthStats.totalDuration / currentMonthStats.totalWorkouts;
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -44,6 +44,7 @@ export default function WriteWorkout() {
   // State for pool type and workout text
   const [poolType, setPoolType] = useState<'SCY' | 'SCM' | 'LCM'>('LCM');
   const [workoutText, setWorkoutText] = useState('');
+  const [workoutDate, setWorkoutDate] = useState(new Date());
   const [workoutSummary, setWorkoutSummary] = useState<WorkoutSummary>({
     totalDistance: 0,
     strokeDistances: {
@@ -56,12 +57,13 @@ export default function WriteWorkout() {
     },
     intensityDistances: {}
   });
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [parseError, setParseError] = useState<string | null>(null);
-  // Add intensity system state
-  const [intensitySystem, setIntensitySystem] = useState<'polar' | 'international'>('polar');
   const [isParsingWithGPT, setIsParsingWithGPT] = useState(false);
   const [gptParseError, setGptParseError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  // Add intensity system state
+  const [intensitySystem, setIntensitySystem] = useState<'polar' | 'international'>('polar');
 
   // Helper function to identify stroke
   const getStroke = (text: string): string => {
@@ -500,6 +502,50 @@ export default function WriteWorkout() {
     }
   };
 
+  const handleSaveWorkout = async () => {
+    setIsSaving(true);
+    setSaveError(null);
+
+    try {
+      const response = await fetch('/api/workouts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          date: workoutDate.toISOString(),
+          text: workoutText,
+          summary: workoutSummary,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to save workout');
+      }
+
+      // Clear the form after successful save
+      setWorkoutText('');
+      setWorkoutSummary({
+        totalDistance: 0,
+        strokeDistances: {
+          freestyle: 0,
+          backstroke: 0,
+          breaststroke: 0,
+          butterfly: 0,
+          im: 0,
+          choice: 0
+        },
+        intensityDistances: {}
+      });
+    } catch (error) {
+      console.error('Error saving workout:', error);
+      setSaveError(error instanceof Error ? error.message : 'Failed to save workout');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header/Navigation */}
@@ -616,17 +662,29 @@ export default function WriteWorkout() {
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <h2 className="text-lg font-semibold text-gray-900">Write Your Workout</h2>
-                  <button
-                    onClick={parseWithGPT}
-                    disabled={isParsingWithGPT || !workoutText.trim()}
-                    className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors
-                      ${isParsingWithGPT || !workoutText.trim()
-                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        : 'bg-teal-500 text-white hover:bg-teal-600'}`}
-                  >
-                    <FaMagic className="h-4 w-4 mr-2" />
-                    {isParsingWithGPT ? 'Parsing...' : 'Parse with GPT'}
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={parseWithGPT}
+                      disabled={isParsingWithGPT || !workoutText.trim()}
+                      className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors
+                        ${isParsingWithGPT || !workoutText.trim()
+                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                          : 'bg-teal-500 text-white hover:bg-teal-600'}`}
+                    >
+                      <FaMagic className="h-4 w-4 mr-2" />
+                      {isParsingWithGPT ? 'Parsing...' : 'Parse with GPT'}
+                    </button>
+                    <button
+                      onClick={handleSaveWorkout}
+                      disabled={isSaving || !workoutText.trim()}
+                      className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors
+                        ${isSaving || !workoutText.trim()
+                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                          : 'bg-blue-500 text-white hover:bg-blue-600'}`}
+                    >
+                      {isSaving ? 'Saving...' : 'Save Workout'}
+                    </button>
+                  </div>
                 </div>
                 <p className="text-sm text-gray-600 mb-4">
                   Enter your workout in free format. Use new lines to separate sets.
@@ -658,6 +716,11 @@ Main Set:
                       ⚠️ {gptParseError}
                     </div>
                   )}
+                  {saveError && (
+                    <div className="text-red-500 text-sm font-medium bg-red-50 p-3 rounded-md mt-2">
+                      ⚠️ {saveError}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -669,35 +732,21 @@ Main Set:
             <div className="bg-white rounded-lg shadow p-6 mb-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-3">Workout Date</h2>
               <div className="space-y-3">
-                <div className="relative">
-                  <DatePicker
-                    selected={selectedDate}
-                    onChange={(date: Date | null) => date && setSelectedDate(date)}
-                    dateFormat="MMMM d, yyyy"
-                    className="w-full px-4 py-3 rounded-md border-2 border-teal-500 shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-lg font-medium text-gray-900"
-                    customInput={
-                      <input
-                        type="text"
-                        className="w-full px-4 py-3 rounded-md border-2 border-teal-500 shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-lg font-medium text-gray-900"
-                      />
-                    }
-                  />
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <DatePicker
+                      selected={workoutDate}
+                      onChange={(date: Date | null) => date && setWorkoutDate(date)}
+                      className="w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-gray-900 focus:ring-teal-500 focus:border-teal-500"
+                    />
+                  </div>
                   <button
-                    onClick={() => document.querySelector<HTMLElement>('.react-datepicker-wrapper input')?.click()}
-                    className="absolute right-0 top-0 h-full px-3 text-teal-500 hover:text-teal-600 transition-colors"
-                    type="button"
-                    aria-label="Open calendar"
+                    onClick={() => setWorkoutDate(new Date())}
+                    className="px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-md text-sm font-medium transition-colors"
                   >
-                    <FaCalendarAlt className="h-5 w-5" />
+                    Today
                   </button>
                 </div>
-                <button
-                  onClick={() => setSelectedDate(new Date())}
-                  className="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md font-medium transition-colors flex items-center justify-center gap-2"
-                >
-                  <FaCalendarAlt className="h-4 w-4" />
-                  Set to Today
-                </button>
               </div>
             </div>
 
