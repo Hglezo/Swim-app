@@ -106,6 +106,24 @@ const WorkoutDetailModal = ({
   // Parse workout text and update summary
   const parseWorkout = async (text: string) => {
     try {
+      // Don't attempt to parse if text is empty
+      if (!text.trim()) {
+        setCurrentSummary({
+          totalDistance: 0,
+          strokeDistances: {
+            freestyle: 0,
+            backstroke: 0,
+            breaststroke: 0,
+            butterfly: 0,
+            im: 0,
+            choice: 0
+          },
+          intensityDistances: {}
+        });
+        setParseError(null);
+        return;
+      }
+
       setIsParsingWorkout(true);
       setParseError(null);
       const response = await fetch('/api/parse-workout', {
@@ -133,7 +151,9 @@ const WorkoutDetailModal = ({
       setCurrentSummary(newSummary);
       
       // Update the workout in the calendar view immediately
-      updateWorkoutInPlace(workout.date, workout.id, text, newSummary);
+      if (workout.id) { // Only update if it's an existing workout
+        updateWorkoutInPlace(workout.date, workout.id, text, newSummary);
+      }
     } catch (error) {
       console.error('Error parsing workout:', error);
       setParseError(error instanceof Error ? error.message : 'Failed to parse workout');
@@ -727,7 +747,16 @@ export default function CalendarPage() {
                 <FaArrowLeft className="h-5 w-5 text-gray-600" />
               </button>
               <h2 className="text-xl font-semibold text-gray-900 mx-4">
-                {`Week of ${currentDate.toLocaleDateString('default', { month: 'long', day: 'numeric', year: 'numeric' })}`}
+                {(() => {
+                  const weekStart = new Date(currentDate);
+                  weekStart.setDate(currentDate.getDate() - currentDate.getDay() + 1);
+                  const weekEnd = new Date(weekStart);
+                  weekEnd.setDate(weekStart.getDate() + 6);
+                  const weekNumber = Math.ceil((weekStart.getDate() - weekStart.getDay() + 1) / 7);
+                  return `${weekStart.toLocaleDateString('default', { month: 'long' })} Week ${weekNumber} (${
+                    weekStart.toLocaleDateString('default', { month: 'short', day: 'numeric' })} – ${
+                    weekEnd.toLocaleDateString('default', { month: 'short', day: 'numeric' })})`
+                })()}
               </h2>
               <button
                 onClick={() => {
@@ -740,8 +769,8 @@ export default function CalendarPage() {
                 <FaArrowRight className="h-5 w-5 text-gray-600" />
               </button>
             </div>
-            
-            {/* Week View Grid */}
+
+            {/* Week View Layout */}
             <div className="grid grid-cols-12 gap-4">
               {/* Main Week View */}
               <div className="col-span-9 bg-white rounded-lg shadow overflow-hidden">
@@ -755,16 +784,57 @@ export default function CalendarPage() {
                     return (
                       <div key={index} className={`p-4 ${
                         isToday(date) ? 'bg-teal-50' : 'hover:bg-gray-50'
-                      }`}>
+                      } relative group`}>
                         <div className="flex items-center justify-between mb-3">
                           <h4 className={`font-medium ${
                             isToday(date) ? 'text-teal-600' : 'text-gray-900'
                           }`}>
                             {date.toLocaleDateString('default', { weekday: 'long', month: 'short', day: 'numeric' })}
                           </h4>
+                          {/* Add Workout Button - Only visible on hover */}
+                          <button
+                            onClick={() => setSelectedWorkout({ 
+                              id: '', 
+                              text: '', 
+                              summary: {
+                                totalDistance: 0,
+                                strokeDistances: {
+                                  freestyle: 0,
+                                  backstroke: 0,
+                                  breaststroke: 0,
+                                  butterfly: 0,
+                                  im: 0,
+                                  choice: 0
+                                },
+                                intensityDistances: {}
+                              },
+                              createdAt: new Date().toISOString(),
+                              date: dateString
+                            })}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-teal-50 rounded-full text-teal-600"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                            </svg>
+                          </button>
                         </div>
                         <div className="space-y-2">
-                          {dayWorkouts?.map((workout) => renderWorkout(workout, true, dateString))}
+                          {dayWorkouts?.map((workout) => (
+                            <ExpandableWorkout
+                              key={workout.id}
+                              workout={workout}
+                              date={dateString}
+                              isExpanded={expandedWorkoutId === workout.id}
+                              onToggle={() => {
+                                setExpandedWorkoutId(expandedWorkoutId === workout.id ? null : workout.id);
+                              }}
+                              onEdit={() => setSelectedWorkout({ ...workout, date: dateString })}
+                              onDelete={() => {
+                                setSelectedWorkout({ ...workout, date: dateString });
+                                handleDeleteWorkout();
+                              }}
+                            />
+                          ))}
                         </div>
                       </div>
                     );
@@ -774,6 +844,7 @@ export default function CalendarPage() {
 
               {/* Daily Summaries */}
               <div className="col-span-3 space-y-4">
+                <div className="text-base font-bold text-gray-900 border-b border-teal-100 pb-1 px-3">Daily Summary</div>
                 {Array.from({ length: 7 }).map((_, index) => {
                   const date = new Date(currentDate);
                   date.setDate(currentDate.getDate() - currentDate.getDay() + index + 1);
@@ -788,11 +859,10 @@ export default function CalendarPage() {
                       <div className="text-base font-bold text-gray-900 mb-2">
                         {date.toLocaleDateString('default', { weekday: 'short' })}
                       </div>
-                      <div className="text-sm font-semibold text-teal-600 border-b border-teal-100 pb-1">Daily Summary</div>
                       <div className="space-y-1.5 text-sm">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Workouts:</span>
-                          <span className="font-medium text-gray-900">{dayWorkouts.length || '0'}</span>
+                          <span className="font-medium text-teal-600">{dayWorkouts.length || '0'}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Distance:</span>
@@ -800,7 +870,7 @@ export default function CalendarPage() {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Time:</span>
-                          <span className="font-medium text-gray-900">{dayWorkouts.length ? formatDuration(totalTime) : 'N/A'}</span>
+                          <span className="font-medium text-teal-600">{dayWorkouts.length ? formatDuration(totalTime) : 'N/A'}</span>
                         </div>
                       </div>
                     </div>
@@ -811,7 +881,18 @@ export default function CalendarPage() {
 
             {/* Week Summary */}
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Week Summary</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">
+                {(() => {
+                  const weekStart = new Date(currentDate);
+                  weekStart.setDate(currentDate.getDate() - currentDate.getDay() + 1);
+                  const weekEnd = new Date(weekStart);
+                  weekEnd.setDate(weekStart.getDate() + 6);
+                  const weekNumber = Math.ceil((weekStart.getDate() - weekStart.getDay() + 1) / 7);
+                  return `${weekStart.toLocaleDateString('default', { month: 'long' })} Week ${weekNumber} (${
+                    weekStart.toLocaleDateString('default', { month: 'short', day: 'numeric' })} – ${
+                    weekEnd.toLocaleDateString('default', { month: 'short', day: 'numeric' })}) Summary`
+                })()}
+              </h3>
               <div className="grid grid-cols-5 gap-6">
                 <div>
                   <div className="text-sm font-medium text-gray-500 mb-2">Total Workouts</div>
@@ -932,10 +1013,10 @@ export default function CalendarPage() {
                         {monthStart.toLocaleDateString('default', { month: 'long' })}
                       </h3>
                       <div className="space-y-2">
-                        <div className="text-sm font-semibold text-teal-600 border-b border-teal-100 pb-1">Monthly Summary</div>
+                        <div className="text-sm font-semibold text-teal-600 border-b border-teal-100 pb-1">Summary</div>
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-gray-600">Workouts:</span>
-                          <span className="font-medium text-gray-900">{monthWorkouts.length || '0'}</span>
+                          <span className="font-medium text-teal-600">{monthWorkouts.length || '0'}</span>
                         </div>
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-gray-600">Distance:</span>
@@ -943,15 +1024,15 @@ export default function CalendarPage() {
                         </div>
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-gray-600">Duration:</span>
-                          <span className="font-medium text-gray-900">{monthWorkouts.length ? formatDuration(totalTime) : 'N/A'}</span>
+                          <span className="font-medium text-teal-600">{monthWorkouts.length ? formatDuration(totalTime) : 'N/A'}</span>
                         </div>
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-gray-600">Avg Dist:</span>
-                          <span className="font-medium text-gray-900">{monthWorkouts.length ? formatToKm(avgDistance) : 'N/A'}</span>
+                          <span className="font-medium text-teal-600">{monthWorkouts.length ? formatToKm(avgDistance) : 'N/A'}</span>
                         </div>
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-gray-600">Avg Time:</span>
-                          <span className="font-medium text-gray-900">{monthWorkouts.length ? formatDuration(avgTime) : 'N/A'}</span>
+                          <span className="font-medium text-teal-600">{monthWorkouts.length ? formatDuration(avgTime) : 'N/A'}</span>
                         </div>
                       </div>
                     </div>
@@ -960,11 +1041,11 @@ export default function CalendarPage() {
               </div>
             </div>
 
-            {/* Yearly Summary and Chart */}
+            {/* Year Summary and Chart */}
             <div className="grid grid-cols-12 gap-6">
-              {/* Yearly Summary */}
+              {/* Year Summary */}
               <div className="col-span-4 bg-white rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Yearly Summary</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">{currentDate.getFullYear()} Summary</h3>
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -1068,7 +1149,7 @@ export default function CalendarPage() {
                     return (
                       <div
                         key={index}
-                        className={`bg-white min-h-[120px] p-2 flex flex-col ${
+                        className={`bg-white min-h-[120px] p-2 flex flex-col relative group ${
                           isCurrentMonth ? 'hover:bg-gray-50' : 'bg-gray-50/50'
                         } ${isToday(date) ? 'ring-2 ring-teal-500' : ''}`}
                       >
@@ -1115,6 +1196,34 @@ export default function CalendarPage() {
                             </div>
                           </div>
                         )}
+                        {/* Add Workout Button - Only visible on hover */}
+                        {isCurrentMonth && (
+                          <button
+                            onClick={() => setSelectedWorkout({ 
+                              id: '', 
+                              text: '', 
+                              summary: {
+                                totalDistance: 0,
+                                strokeDistances: {
+                                  freestyle: 0,
+                                  backstroke: 0,
+                                  breaststroke: 0,
+                                  butterfly: 0,
+                                  im: 0,
+                                  choice: 0
+                                },
+                                intensityDistances: {}
+                              },
+                              createdAt: new Date().toISOString(),
+                              date: dateString
+                            })}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-2 right-2 p-1.5 hover:bg-teal-50 rounded-full text-teal-600"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                            </svg>
+                          </button>
+                        )}
                       </div>
                     );
                   })}
@@ -1123,6 +1232,7 @@ export default function CalendarPage() {
 
               {/* Weekly Summaries */}
               <div className="col-span-3 space-y-4">
+                <div className="text-base font-bold text-gray-900 border-b border-teal-100 pb-1 px-3">Weekly Summary</div>
                 {Array.from({ length: weeksInMonth }).map((_, weekIndex) => {
                   const weekStart = new Date(monthStart);
                   weekStart.setDate(weekStart.getDate() - firstDayOfMonth + (weekIndex * 7));
@@ -1138,11 +1248,10 @@ export default function CalendarPage() {
                       <div className="text-base font-bold text-gray-900 mb-2">
                         Week {weekIndex + 1}
                       </div>
-                      <div className="text-sm font-semibold text-teal-600 border-b border-teal-100 pb-1">Weekly Summary</div>
                       <div className="space-y-1.5 text-sm">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Workouts:</span>
-                          <span className="font-medium text-gray-900">{weekWorkouts.length || '0'}</span>
+                          <span className="font-medium text-teal-600">{weekWorkouts.length || '0'}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Distance:</span>
@@ -1150,15 +1259,15 @@ export default function CalendarPage() {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Time:</span>
-                          <span className="font-medium text-gray-900">{weekWorkouts.length ? formatDuration(totalTime) : 'N/A'}</span>
+                          <span className="font-medium text-teal-600">{weekWorkouts.length ? formatDuration(totalTime) : 'N/A'}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Avg Distance:</span>
-                          <span className="font-medium text-gray-900">{weekWorkouts.length ? formatToKm(avgDistance) : 'N/A'}</span>
+                          <span className="font-medium text-teal-600">{weekWorkouts.length ? formatToKm(avgDistance) : 'N/A'}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Avg Time:</span>
-                          <span className="font-medium text-gray-900">{weekWorkouts.length ? formatDuration(avgTime) : 'N/A'}</span>
+                          <span className="font-medium text-teal-600">{weekWorkouts.length ? formatDuration(avgTime) : 'N/A'}</span>
                         </div>
                       </div>
                     </div>
@@ -1169,7 +1278,9 @@ export default function CalendarPage() {
 
             {/* Month Summary */}
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Month Summary</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">
+                {currentDate.toLocaleDateString('default', { month: 'long' })} Summary
+              </h3>
               <div className="grid grid-cols-5 gap-6">
                 <div>
                   <div className="text-sm font-medium text-gray-500 mb-2">Total Workouts</div>
@@ -1196,7 +1307,10 @@ export default function CalendarPage() {
                 <div>
                   <div className="text-sm font-medium text-gray-500 mb-2">Avg Time/Workout</div>
                   <div className="text-xl font-bold text-gray-900">
-                    {monthWorkouts.length ? formatDuration(monthWorkouts.reduce((sum, w) => sum + getTotalDuration(w), 0) / monthWorkouts.length) : 'N/A'}
+                    {monthWorkouts.length 
+                      ? formatDuration(monthWorkouts.reduce((sum, w) => sum + getTotalDuration(w), 0) / monthWorkouts.length)
+                      : 'N/A'
+                    }
                   </div>
                 </div>
               </div>
