@@ -413,9 +413,10 @@ const ExpandableWorkout = ({
           <span className="font-medium text-gray-900">
             {formatToKm(workout.summary.totalDistance)}
           </span>
-          <span className="text-gray-500">
+          <div className="flex items-center text-gray-500">
+            <FaClock className="h-4 w-4 mr-1" />
             {formatDuration(getTotalDuration(workout))}
-          </span>
+          </div>
         </div>
         <div className="flex items-center space-x-2">
           <button
@@ -586,7 +587,10 @@ export default function CalendarPage() {
             {workout.summary.totalDistance.toLocaleString()}m
           </span>
         </div>
-        <span className="text-sm text-gray-500">{formatDuration(getTotalDuration(workout))}</span>
+        <div className="flex items-center text-gray-500">
+          <FaClock className="h-3 w-3 mr-0.5" />
+          {formatDuration(getTotalDuration(workout))}
+        </div>
       </div>
     </div>
   );
@@ -672,6 +676,36 @@ export default function CalendarPage() {
                   }}
                 />
               ))}
+            </div>
+
+            {/* Add Workout Button */}
+            <div className="flex justify-end mb-6">
+              <button
+                onClick={() => setSelectedWorkout({ 
+                  id: '', 
+                  text: '', 
+                  summary: {
+                    totalDistance: 0,
+                    strokeDistances: {
+                      freestyle: 0,
+                      backstroke: 0,
+                      breaststroke: 0,
+                      butterfly: 0,
+                      im: 0,
+                      choice: 0
+                    },
+                    intensityDistances: {}
+                  },
+                  createdAt: new Date().toISOString(),
+                  date: formatDateString(currentDate)
+                })}
+                className="flex items-center px-4 py-2 text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                </svg>
+                Add Workout
+              </button>
             </div>
 
             {/* Daily Summary */}
@@ -1153,10 +1187,40 @@ export default function CalendarPage() {
                           isCurrentMonth ? 'hover:bg-gray-50' : 'bg-gray-50/50'
                         } ${isToday(date) ? 'ring-2 ring-teal-500' : ''}`}
                       >
-                        <div className={`font-medium mb-1 text-sm ${
-                          isCurrentMonth ? 'text-gray-700' : 'text-gray-400'
-                        } ${isToday(date) ? 'text-teal-600' : ''}`}>
-                          {date.getDate()}
+                        <div className="flex justify-between items-center mb-1">
+                          <div className={`font-medium text-sm ${
+                            isCurrentMonth ? 'text-gray-700' : 'text-gray-400'
+                          } ${isToday(date) ? 'text-teal-600' : ''}`}>
+                            {date.getDate()}
+                          </div>
+                          {/* Add Workout Button - Only visible on hover */}
+                          {isCurrentMonth && (
+                            <button
+                              onClick={() => setSelectedWorkout({ 
+                                id: '', 
+                                text: '', 
+                                summary: {
+                                  totalDistance: 0,
+                                  strokeDistances: {
+                                    freestyle: 0,
+                                    backstroke: 0,
+                                    breaststroke: 0,
+                                    butterfly: 0,
+                                    im: 0,
+                                    choice: 0
+                                  },
+                                  intensityDistances: {}
+                                },
+                                createdAt: new Date().toISOString(),
+                                date: dateString
+                              })}
+                              className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-teal-50 rounded-full text-teal-600"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                              </svg>
+                            </button>
+                          )}
                         </div>
                         {dayWorkouts.length > 0 && (
                           <div className="flex-1 flex flex-col space-y-1">
@@ -1187,42 +1251,15 @@ export default function CalendarPage() {
                                     <span className="text-gray-600">
                                       {formatToKm(workout.summary.totalDistance)}
                                     </span>
-                                    <span className="text-gray-500">
+                                    <div className="flex items-center text-gray-500">
+                                      <FaClock className="h-3 w-3 mr-0.5" />
                                       {formatDuration(getTotalDuration(workout))}
-                                    </span>
+                                    </div>
                                   </div>
                                 </div>
                               ))}
                             </div>
                           </div>
-                        )}
-                        {/* Add Workout Button - Only visible on hover */}
-                        {isCurrentMonth && (
-                          <button
-                            onClick={() => setSelectedWorkout({ 
-                              id: '', 
-                              text: '', 
-                              summary: {
-                                totalDistance: 0,
-                                strokeDistances: {
-                                  freestyle: 0,
-                                  backstroke: 0,
-                                  breaststroke: 0,
-                                  butterfly: 0,
-                                  im: 0,
-                                  choice: 0
-                                },
-                                intensityDistances: {}
-                              },
-                              createdAt: new Date().toISOString(),
-                              date: dateString
-                            })}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-2 right-2 p-1.5 hover:bg-teal-50 rounded-full text-teal-600"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                            </svg>
-                          </button>
                         )}
                       </div>
                     );
