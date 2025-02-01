@@ -32,36 +32,10 @@ interface YearSummaryProps {
   }[];
   poolType: string;
   year: number;
+  showStatsOnly?: boolean;
 }
 
-export default function YearSummary({ workouts, poolType, year }: YearSummaryProps) {
-  // Calculate total distance
-  const totalDistance = workouts.reduce((sum, workout) => sum + workout.summary.totalDistance, 0);
-  
-  // Get unique workout days
-  const uniqueDays = new Set(workouts.map(w => w.createdAt.split('T')[0])).size;
-  
-  // Calculate averages
-  const avgDistancePerWorkout = workouts.length > 0 ? totalDistance / workouts.length : 0;
-  const avgDistancePerDay = uniqueDays > 0 ? totalDistance / uniqueDays : 0;
-  const workoutsPerDay = uniqueDays > 0 ? workouts.length / uniqueDays : 0;
-
-  // Aggregate stroke distances
-  const strokeDistances = workouts.reduce((acc, workout) => {
-    Object.entries(workout.summary.strokeDistances).forEach(([stroke, distance]) => {
-      acc[stroke] = (acc[stroke] || 0) + (distance as number);
-    });
-    return acc;
-  }, {} as Record<string, number>);
-
-  // Aggregate intensity distances
-  const intensityDistances = workouts.reduce((acc, workout) => {
-    Object.entries(workout.summary.intensityDistances || {}).forEach(([intensity, distance]) => {
-      acc[intensity] = (acc[intensity] || 0) + (distance as number);
-    });
-    return acc;
-  }, {} as Record<string, number>);
-
+export default function YearSummary({ workouts, poolType, year, showStatsOnly = true }: YearSummaryProps) {
   // Calculate monthly data for chart
   const monthlyData = Array(12).fill(0);
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -91,8 +65,7 @@ export default function YearSummary({ workouts, poolType, year }: YearSummaryPro
         position: 'top' as const,
       },
       title: {
-        display: true,
-        text: `${year} Monthly Swimming Distance`,
+        display: false,
       },
     },
     scales: {
@@ -101,6 +74,37 @@ export default function YearSummary({ workouts, poolType, year }: YearSummaryPro
       },
     },
   };
+
+  if (!showStatsOnly) {
+    return <Bar data={chartData} options={chartOptions} />;
+  }
+
+  // Calculate total distance
+  const totalDistance = workouts.reduce((sum, workout) => sum + workout.summary.totalDistance, 0);
+  
+  // Get unique workout days
+  const uniqueDays = new Set(workouts.map(w => w.createdAt.split('T')[0])).size;
+  
+  // Calculate averages
+  const avgDistancePerWorkout = workouts.length > 0 ? totalDistance / workouts.length : 0;
+  const avgDistancePerDay = uniqueDays > 0 ? totalDistance / uniqueDays : 0;
+  const workoutsPerDay = uniqueDays > 0 ? workouts.length / uniqueDays : 0;
+
+  // Aggregate stroke distances
+  const strokeDistances = workouts.reduce((acc, workout) => {
+    Object.entries(workout.summary.strokeDistances).forEach(([stroke, distance]) => {
+      acc[stroke] = (acc[stroke] || 0) + (distance as number);
+    });
+    return acc;
+  }, {} as Record<string, number>);
+
+  // Aggregate intensity distances
+  const intensityDistances = workouts.reduce((acc, workout) => {
+    Object.entries(workout.summary.intensityDistances || {}).forEach(([intensity, distance]) => {
+      acc[intensity] = (acc[intensity] || 0) + (distance as number);
+    });
+    return acc;
+  }, {} as Record<string, number>);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -159,64 +163,9 @@ export default function YearSummary({ workouts, poolType, year }: YearSummaryPro
         )}
       </div>
 
-      {/* Yearly Stats */}
-      <div className="bg-white rounded-lg shadow-sm p-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">Yearly Stats</h3>
-          <FaChartLine className="h-6 w-6 text-teal-500" />
-        </div>
-
-        <div className="space-y-4">
-          {/* Total Workouts */}
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Total Workouts</span>
-            <span className="text-lg font-semibold text-gray-900">{workouts.length}</span>
-          </div>
-
-          {/* Days with Workouts */}
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Days with Workouts</span>
-            <span className="text-lg font-semibold text-gray-900">{uniqueDays}</span>
-          </div>
-
-          {/* Average Distance per Workout */}
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Avg Distance/Workout</span>
-            <span className="text-lg font-semibold text-gray-900">
-              {avgDistancePerWorkout.toLocaleString(undefined, { maximumFractionDigits: 0 })} {poolType === 'SCY' ? 'yards' : 'meters'}
-            </span>
-          </div>
-
-          {/* Average Distance per Day */}
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Avg Distance/Day</span>
-            <span className="text-lg font-semibold text-gray-900">
-              {avgDistancePerDay.toLocaleString(undefined, { maximumFractionDigits: 0 })} {poolType === 'SCY' ? 'yards' : 'meters'}
-            </span>
-          </div>
-
-          {/* Workouts per Day */}
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Workouts/Day</span>
-            <span className="text-lg font-semibold text-gray-900">
-              {workoutsPerDay.toFixed(1)}
-            </span>
-          </div>
-
-          {/* Most Common Stroke */}
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Most Common Stroke</span>
-            <span className="text-lg font-semibold text-gray-900 capitalize">
-              {Object.entries(strokeDistances)
-                .sort(([,a], [,b]) => (b as number) - (a as number))[0]?.[0] || 'N/A'}
-            </span>
-          </div>
-        </div>
-
-        {/* Monthly Distance Chart */}
-        <div className="mt-6">
-          <Bar data={chartData} options={chartOptions} />
-        </div>
+      {/* Monthly Distance Chart */}
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <Bar data={chartData} options={chartOptions} />
       </div>
     </div>
   );

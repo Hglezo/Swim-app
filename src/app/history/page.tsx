@@ -655,31 +655,31 @@ export default function CalendarPage() {
             </div>
 
             {/* Daily Summary */}
-            {dayWorkouts.length > 0 && (
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Daily Summary</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div>
-                    <div className="text-sm font-medium text-gray-500 mb-2">Total Distance</div>
-                    <div className="text-2xl font-bold text-teal-600">
-                      {formatToKm(dayWorkouts.reduce((sum, w) => sum + w.summary.totalDistance, 0))}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium text-gray-500 mb-2">Total Time</div>
-                    <div className="text-2xl font-bold text-gray-900">
-                      {formatDuration(dayWorkouts.reduce((sum, w) => sum + getTotalDuration(w), 0))}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium text-gray-500 mb-2">Workouts</div>
-                    <div className="text-2xl font-bold text-gray-900">{dayWorkouts.length}</div>
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Daily Summary</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <div className="text-sm font-medium text-gray-500 mb-2">Total Distance</div>
+                  <div className="text-2xl font-bold text-teal-600">
+                    {dayWorkouts.length ? formatToKm(dayWorkouts.reduce((sum, w) => sum + w.summary.totalDistance, 0)) : 'N/A'}
                   </div>
                 </div>
-                <div className="mt-6">
-                  <h4 className="text-sm font-medium text-gray-700 mb-3">Distance by Stroke</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {Object.entries(
+                <div>
+                  <div className="text-sm font-medium text-gray-500 mb-2">Total Time</div>
+                  <div className="text-2xl font-bold text-gray-900">
+                    {dayWorkouts.length ? formatDuration(dayWorkouts.reduce((sum, w) => sum + getTotalDuration(w), 0)) : 'N/A'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-gray-500 mb-2">Workouts</div>
+                  <div className="text-2xl font-bold text-gray-900">{dayWorkouts.length || '0'}</div>
+                </div>
+              </div>
+              <div className="mt-6">
+                <h4 className="text-sm font-medium text-gray-700 mb-3">Distance by Stroke</h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {dayWorkouts.length ? (
+                    Object.entries(
                       dayWorkouts.reduce((acc, workout) => {
                         Object.entries(workout.summary.strokeDistances).forEach(([stroke, distance]) => {
                           acc[stroke] = (acc[stroke] || 0) + distance;
@@ -694,11 +694,12 @@ export default function CalendarPage() {
                           <span className="font-medium text-gray-900">{distance}m</span>
                         </div>
                       ))
-                    }
-                  </div>
+                  ) : (
+                    <div className="text-gray-500">No stroke data available</div>
+                  )}
                 </div>
               </div>
-            )}
+            </div>
           </div>
         );
       }
@@ -779,33 +780,67 @@ export default function CalendarPage() {
                   const dateString = formatDateString(date);
                   const dayWorkouts = workouts[dateString] || [];
 
-                  if (dayWorkouts.length === 0) return null;
-
                   const totalDistance = dayWorkouts.reduce((sum, w) => sum + w.summary.totalDistance, 0);
                   const totalTime = dayWorkouts.reduce((sum, w) => sum + getTotalDuration(w), 0);
 
                   return (
                     <div key={index} className="bg-white rounded-lg shadow-sm p-3">
-                      <div className="text-xs font-medium text-gray-500 mb-2">
+                      <div className="text-base font-bold text-gray-900 mb-2">
                         {date.toLocaleDateString('default', { weekday: 'short' })}
                       </div>
+                      <div className="text-sm font-semibold text-teal-600 border-b border-teal-100 pb-1">Daily Summary</div>
                       <div className="space-y-1.5 text-sm">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Workouts:</span>
-                          <span className="font-medium text-gray-900">{dayWorkouts.length}</span>
+                          <span className="font-medium text-gray-900">{dayWorkouts.length || '0'}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Distance:</span>
-                          <span className="font-medium text-teal-600">{formatToKm(totalDistance)}</span>
+                          <span className="font-medium text-teal-600">{dayWorkouts.length ? formatToKm(totalDistance) : 'N/A'}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Time:</span>
-                          <span className="font-medium text-gray-900">{formatDuration(totalTime)}</span>
+                          <span className="font-medium text-gray-900">{dayWorkouts.length ? formatDuration(totalTime) : 'N/A'}</span>
                         </div>
                       </div>
                     </div>
                   );
                 })}
+              </div>
+            </div>
+
+            {/* Week Summary */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Week Summary</h3>
+              <div className="grid grid-cols-5 gap-6">
+                <div>
+                  <div className="text-sm font-medium text-gray-500 mb-2">Total Workouts</div>
+                  <div className="text-xl font-bold text-gray-900">{weekWorkouts.length}</div>
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-gray-500 mb-2">Total Distance</div>
+                  <div className="text-xl font-bold text-teal-600">
+                    {formatToKm(weekWorkouts.reduce((sum, w) => sum + w.summary.totalDistance, 0))}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-gray-500 mb-2">Total Time</div>
+                  <div className="text-xl font-bold text-gray-900">
+                    {formatDuration(weekWorkouts.reduce((sum, w) => sum + getTotalDuration(w), 0))}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-gray-500 mb-2">Avg Distance/Workout</div>
+                  <div className="text-xl font-bold text-gray-900">
+                    {weekWorkouts.length ? formatToKm(weekWorkouts.reduce((sum, w) => sum + w.summary.totalDistance, 0) / weekWorkouts.length) : 'N/A'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-gray-500 mb-2">Avg Time/Workout</div>
+                  <div className="text-xl font-bold text-gray-900">
+                    {weekWorkouts.length ? formatDuration(weekWorkouts.reduce((sum, w) => sum + getTotalDuration(w), 0) / weekWorkouts.length) : 'N/A'}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -814,6 +849,30 @@ export default function CalendarPage() {
 
       case 'year': {
         const yearWorkouts = Object.values(workouts).flat();
+        const currentYearWorkouts = yearWorkouts.filter(workout => {
+          const workoutDate = new Date(workout.createdAt);
+          return workoutDate.getFullYear() === currentDate.getFullYear();
+        });
+
+        // Calculate yearly stats
+        const totalDistance = currentYearWorkouts.reduce((sum, w) => sum + w.summary.totalDistance, 0);
+        const totalTime = currentYearWorkouts.reduce((sum, w) => sum + getTotalDuration(w), 0);
+        const avgDistance = currentYearWorkouts.length > 0 ? totalDistance / currentYearWorkouts.length : 0;
+        const avgTime = currentYearWorkouts.length > 0 ? totalTime / currentYearWorkouts.length : 0;
+        const daysWithWorkouts = new Set(currentYearWorkouts.map(w => w.createdAt.split('T')[0])).size;
+        const daysInYear = new Date(currentDate.getFullYear(), 11, 31).getDate() + 
+                          new Date(currentDate.getFullYear(), 10, 30).getDate() + 
+                          new Date(currentDate.getFullYear(), 9, 31).getDate() + 
+                          new Date(currentDate.getFullYear(), 8, 30).getDate() + 
+                          new Date(currentDate.getFullYear(), 7, 31).getDate() + 
+                          new Date(currentDate.getFullYear(), 6, 31).getDate() + 
+                          new Date(currentDate.getFullYear(), 5, 30).getDate() + 
+                          new Date(currentDate.getFullYear(), 4, 31).getDate() + 
+                          new Date(currentDate.getFullYear(), 3, 30).getDate() + 
+                          new Date(currentDate.getFullYear(), 2, 31).getDate() + 
+                          new Date(currentDate.getFullYear(), 1, new Date(currentDate.getFullYear(), 2, 0).getDate()).getDate() + 
+                          new Date(currentDate.getFullYear(), 0, 31).getDate();
+
         return (
           <div className="space-y-6">
             {/* Year Navigation */}
@@ -865,51 +924,94 @@ export default function CalendarPage() {
                       key={monthIndex}
                       className="bg-gray-50 rounded-lg p-4"
                     >
-                      <h3 className="font-medium text-gray-900 mb-3 hover:text-teal-600 cursor-pointer"
+                      <h3 className="text-lg font-bold text-gray-900 mb-3 hover:text-teal-600 cursor-pointer"
                           onClick={() => {
                             setCurrentDate(monthStart);
                             setCurrentView('month');
                           }}>
                         {monthStart.toLocaleDateString('default', { month: 'long' })}
                       </h3>
-                      {monthWorkouts.length > 0 ? (
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-gray-600">Workouts:</span>
-                            <span className="font-medium text-gray-900">{monthWorkouts.length}</span>
-                          </div>
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-gray-600">Distance:</span>
-                            <span className="font-medium text-teal-600">{formatToKm(totalDistance)}</span>
-                          </div>
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-gray-600">Duration:</span>
-                            <span className="font-medium text-gray-900">{formatDuration(totalTime)}</span>
-                          </div>
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-gray-600">Avg Dist:</span>
-                            <span className="font-medium text-gray-900">{formatToKm(avgDistance)}</span>
-                          </div>
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-gray-600">Avg Time:</span>
-                            <span className="font-medium text-gray-900">{formatDuration(avgTime)}</span>
-                          </div>
+                      <div className="space-y-2">
+                        <div className="text-sm font-semibold text-teal-600 border-b border-teal-100 pb-1">Monthly Summary</div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-600">Workouts:</span>
+                          <span className="font-medium text-gray-900">{monthWorkouts.length || '0'}</span>
                         </div>
-                      ) : (
-                        <div className="text-sm text-gray-500 italic">No workouts</div>
-                      )}
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-600">Distance:</span>
+                          <span className="font-medium text-teal-600">{monthWorkouts.length ? formatToKm(totalDistance) : 'N/A'}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-600">Duration:</span>
+                          <span className="font-medium text-gray-900">{monthWorkouts.length ? formatDuration(totalTime) : 'N/A'}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-600">Avg Dist:</span>
+                          <span className="font-medium text-gray-900">{monthWorkouts.length ? formatToKm(avgDistance) : 'N/A'}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-600">Avg Time:</span>
+                          <span className="font-medium text-gray-900">{monthWorkouts.length ? formatDuration(avgTime) : 'N/A'}</span>
+                        </div>
+                      </div>
                     </div>
                   );
                 })}
               </div>
             </div>
 
-            {/* Yearly Summary */}
-            <YearSummary 
-              workouts={yearWorkouts} 
-              poolType={poolType} 
-              year={currentDate.getFullYear()} 
-            />
+            {/* Yearly Summary and Chart */}
+            <div className="grid grid-cols-12 gap-6">
+              {/* Yearly Summary */}
+              <div className="col-span-4 bg-white rounded-lg shadow-sm p-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Yearly Summary</h3>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-sm font-medium text-gray-500">Total Workouts</div>
+                      <div className="text-xl font-bold text-gray-900">{currentYearWorkouts.length}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-gray-500">Total Distance</div>
+                      <div className="text-xl font-bold text-teal-600">{formatToKm(totalDistance)}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-gray-500">Total Time</div>
+                      <div className="text-xl font-bold text-gray-900">{formatDuration(totalTime)}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-gray-500">Days with Workouts</div>
+                      <div className="text-xl font-bold text-gray-900">{daysWithWorkouts}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-gray-500">Days without Workouts</div>
+                      <div className="text-xl font-bold text-gray-900">{daysInYear - daysWithWorkouts}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-gray-500">Avg Distance/Workout</div>
+                      <div className="text-xl font-bold text-gray-900">{formatToKm(avgDistance)}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-gray-500">Avg Time/Workout</div>
+                      <div className="text-xl font-bold text-gray-900">{formatDuration(avgTime)}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Monthly Distance Chart */}
+              <div className="col-span-8 bg-white rounded-lg shadow-sm p-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Monthly Swimming Distance</h3>
+                <div className="h-[300px]">
+                  <YearSummary 
+                    workouts={currentYearWorkouts} 
+                    poolType={poolType} 
+                    year={currentDate.getFullYear()} 
+                    showStatsOnly={false}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         );
       }
@@ -1026,43 +1128,77 @@ export default function CalendarPage() {
                   weekStart.setDate(weekStart.getDate() - firstDayOfMonth + (weekIndex * 7));
                   const weekWorkouts = getWeekWorkouts(weekStart);
                   
-                  if (weekWorkouts.length === 0) return null;
-
                   const totalDistance = weekWorkouts.reduce((sum, w) => sum + w.summary.totalDistance, 0);
                   const totalTime = weekWorkouts.reduce((sum, w) => sum + getTotalDuration(w), 0);
-                  const avgDistance = totalDistance / weekWorkouts.length;
-                  const avgTime = totalTime / weekWorkouts.length;
+                  const avgDistance = weekWorkouts.length > 0 ? totalDistance / weekWorkouts.length : 0;
+                  const avgTime = weekWorkouts.length > 0 ? totalTime / weekWorkouts.length : 0;
 
                   return (
                     <div key={weekIndex} className="bg-white rounded-lg shadow-sm p-3">
-                      <div className="text-xs font-medium text-gray-500 mb-2">
+                      <div className="text-base font-bold text-gray-900 mb-2">
                         Week {weekIndex + 1}
                       </div>
+                      <div className="text-sm font-semibold text-teal-600 border-b border-teal-100 pb-1">Weekly Summary</div>
                       <div className="space-y-1.5 text-sm">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Workouts:</span>
-                          <span className="font-medium text-gray-900">{weekWorkouts.length}</span>
+                          <span className="font-medium text-gray-900">{weekWorkouts.length || '0'}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Distance:</span>
-                          <span className="font-medium text-teal-600">{formatToKm(totalDistance)}</span>
+                          <span className="font-medium text-teal-600">{weekWorkouts.length ? formatToKm(totalDistance) : 'N/A'}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Time:</span>
-                          <span className="font-medium text-gray-900">{formatDuration(totalTime)}</span>
+                          <span className="font-medium text-gray-900">{weekWorkouts.length ? formatDuration(totalTime) : 'N/A'}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Avg Distance:</span>
-                          <span className="font-medium text-gray-900">{formatToKm(avgDistance)}</span>
+                          <span className="font-medium text-gray-900">{weekWorkouts.length ? formatToKm(avgDistance) : 'N/A'}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Avg Time:</span>
-                          <span className="font-medium text-gray-900">{formatDuration(avgTime)}</span>
+                          <span className="font-medium text-gray-900">{weekWorkouts.length ? formatDuration(avgTime) : 'N/A'}</span>
                         </div>
                       </div>
                     </div>
                   );
                 })}
+              </div>
+            </div>
+
+            {/* Month Summary */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Month Summary</h3>
+              <div className="grid grid-cols-5 gap-6">
+                <div>
+                  <div className="text-sm font-medium text-gray-500 mb-2">Total Workouts</div>
+                  <div className="text-xl font-bold text-gray-900">{monthWorkouts.length}</div>
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-gray-500 mb-2">Total Distance</div>
+                  <div className="text-xl font-bold text-teal-600">
+                    {formatToKm(monthWorkouts.reduce((sum, w) => sum + w.summary.totalDistance, 0))}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-gray-500 mb-2">Total Time</div>
+                  <div className="text-xl font-bold text-gray-900">
+                    {formatDuration(monthWorkouts.reduce((sum, w) => sum + getTotalDuration(w), 0))}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-gray-500 mb-2">Avg Distance/Workout</div>
+                  <div className="text-xl font-bold text-gray-900">
+                    {monthWorkouts.length ? formatToKm(monthWorkouts.reduce((sum, w) => sum + w.summary.totalDistance, 0) / monthWorkouts.length) : 'N/A'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-gray-500 mb-2">Avg Time/Workout</div>
+                  <div className="text-xl font-bold text-gray-900">
+                    {monthWorkouts.length ? formatDuration(monthWorkouts.reduce((sum, w) => sum + getTotalDuration(w), 0) / monthWorkouts.length) : 'N/A'}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
