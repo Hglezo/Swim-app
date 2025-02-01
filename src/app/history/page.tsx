@@ -47,6 +47,9 @@ type SelectedWorkout = {
     strokeDistances: {
       [key: string]: number;
     };
+    intensityDistances: {
+      [key: string]: number;
+    };
   };
 } | null;
 
@@ -82,6 +85,8 @@ const WorkoutDetailModal = ({
   const [editedText, setEditedText] = useState(workout.text);
   const [currentSummary, setCurrentSummary] = useState(workout.summary);
   const [isParsingWorkout, setIsParsingWorkout] = useState(false);
+  const [parseError, setParseError] = useState<string | null>(null);
+  const [intensitySystem] = useState<'polar' | 'international'>('polar');
 
   const handleDelete = () => {
     if (showConfirmDelete) {
@@ -95,6 +100,7 @@ const WorkoutDetailModal = ({
   const parseWorkout = async (text: string) => {
     try {
       setIsParsingWorkout(true);
+      setParseError(null);
       const response = await fetch('/api/parse-workout', {
         method: 'POST',
         headers: {
@@ -103,7 +109,7 @@ const WorkoutDetailModal = ({
         body: JSON.stringify({
           workout: text,
           poolType,
-          intensitySystem: 'polar'
+          intensitySystem
         }),
       });
 
@@ -114,7 +120,8 @@ const WorkoutDetailModal = ({
       const data = await response.json();
       const newSummary = {
         totalDistance: data.totalDistance,
-        strokeDistances: data.strokeDistances
+        strokeDistances: data.strokeDistances,
+        intensityDistances: data.intensityDistances || {}
       };
       setCurrentSummary(newSummary);
       
@@ -122,6 +129,7 @@ const WorkoutDetailModal = ({
       updateWorkoutInPlace(workout.date, workout.id, text, newSummary);
     } catch (error) {
       console.error('Error parsing workout:', error);
+      setParseError(error instanceof Error ? error.message : 'Failed to parse workout');
     } finally {
       setIsParsingWorkout(false);
     }
@@ -132,7 +140,7 @@ const WorkoutDetailModal = ({
     if (isEditing) {
       const timeoutId = setTimeout(() => {
         parseWorkout(editedText);
-      }, 500); // Wait 500ms after last edit before parsing
+      }, 200); // Wait 200ms after last edit before parsing
 
       return () => clearTimeout(timeoutId);
     }
@@ -197,21 +205,21 @@ const WorkoutDetailModal = ({
             <div>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-gray-500">Total Distance</span>
-                <span className="text-lg font-semibold text-teal-600">
+                <span className="text-2xl font-bold text-gray-900">
                   {currentSummary.totalDistance.toLocaleString()} {poolType === 'SCY' ? 'yards' : 'meters'}
                 </span>
               </div>
               
               {/* Stroke distances */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="text-sm font-medium text-gray-700 mb-2">Distance by Stroke</h4>
+              <div className="mb-6">
+                <h3 className="text-sm font-medium text-gray-700 mb-3">Distance by Stroke</h3>
                 <div className="space-y-2">
                   {Object.entries(currentSummary.strokeDistances)
                     .filter(([_, distance]) => distance > 0)
                     .map(([stroke, distance]) => (
-                      <div key={stroke} className="flex justify-between text-sm">
-                        <span className="text-gray-600 capitalize">{stroke}</span>
-                        <span className="font-medium text-gray-900">
+                      <div key={stroke} className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600 capitalize">{stroke}</span>
+                        <span className="text-sm font-medium text-gray-900">
                           {distance.toLocaleString()} {poolType === 'SCY' ? 'yards' : 'meters'}
                         </span>
                       </div>
@@ -219,6 +227,23 @@ const WorkoutDetailModal = ({
                   }
                 </div>
               </div>
+
+              {/* Distance by Intensity */}
+              {Object.keys(currentSummary.intensityDistances || {}).length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-sm font-medium text-gray-700 mb-3">Distance by Intensity</h3>
+                  <div className="space-y-2">
+                    {Object.entries(currentSummary.intensityDistances || {}).map(([intensity, distance]) => (
+                      <div key={intensity} className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">{intensity}</span>
+                        <span className="text-sm font-medium text-gray-900">
+                          {(distance as number).toLocaleString()} {poolType === 'SCY' ? 'yards' : 'meters'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Workout text */}
@@ -243,7 +268,26 @@ const WorkoutDetailModal = ({
                   </pre>
                 )}
               </div>
+              {parseError && (
+                <div className="mt-2 text-red-500 text-sm font-medium bg-red-50 p-3 rounded-md">
+                  ⚠️ {parseError}
+                </div>
+              )}
             </div>
+
+            {/* Format Examples */}
+            {isEditing && (
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">Format Examples:</h3>
+                <div className="text-xs text-gray-600 space-y-1">
+                  <p>Stroke Types: drill/dr, kick/k, scull</p>
+                  <p>Heart Rate: hr150-hr190 (by 5)</p>
+                  <p>Heart Rate by 10: hr24-hr30</p>
+                  <p>Standard: Easy, Moderate, Strong, Fast</p>
+                  <p>Polar Zones: Grey, Blue, Green, Orange, Red</p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Bottom actions bar with edit and delete buttons */}
@@ -256,6 +300,7 @@ const WorkoutDetailModal = ({
                     setIsEditing(false);
                     setEditedText(workout.text);
                     setCurrentSummary(workout.summary);
+                    setParseError(null);
                   }}
                   className="flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors"
                 >

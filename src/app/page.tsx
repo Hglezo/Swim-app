@@ -69,9 +69,12 @@ export default function Home() {
               >
                 Write your workout
               </Link>
-              <button className="bg-white text-teal-500 px-8 py-3 rounded-full font-semibold hover:bg-teal-50 transition-colors">
-                Start Tracking Now
-              </button>
+              <Link 
+                href="/workout-assistant"
+                className="bg-white text-teal-500 px-8 py-3 rounded-full font-semibold hover:bg-teal-50 transition-colors"
+              >
+                Find New Workouts
+              </Link>
             </div>
           </div>
         </div>
@@ -164,9 +167,13 @@ export default function Home() {
       </footer>
 
       {/* Floating Action Button */}
-      <button className="fixed bottom-6 right-6 bg-teal-500 text-white rounded-full p-4 shadow-lg hover:bg-teal-600 transition-colors">
+      <Link 
+        href="/write-workout"
+        className="fixed bottom-6 right-6 bg-teal-500 text-white rounded-full p-4 shadow-lg hover:bg-teal-600 transition-colors"
+        aria-label="Write new workout"
+      >
         <MdAdd className="h-6 w-6" />
-      </button>
+      </Link>
     </div>
   );
 }

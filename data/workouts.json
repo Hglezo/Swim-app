@@ -1,1 +1,22 @@
-{}
+{
+  "2025-02-01": [
+    {
+      "id": "1738420690433",
+      "text": "400 4x100 4x50",
+      "summary": {
+        "totalDistance": 600,
+        "strokeDistances": {
+          "freestyle": 600,
+          "backstroke": 0,
+          "breaststroke": 0,
+          "butterfly": 0,
+          "im": 0,
+          "choice": 0
+        },
+        "intensityDistances": {}
+      },
+      "createdAt": "2025-02-01T14:38:10.433Z",
+      "updatedAt": "2025-02-01T14:39:56.318Z"
+    }
+  ]
+}
