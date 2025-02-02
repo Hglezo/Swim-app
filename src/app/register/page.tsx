@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FaSwimmer, FaEnvelope, FaLock, FaUser } from 'react-icons/fa';
+import { useTheme } from '@/contexts/ThemeContext';
+import ThemeToggle from '@/components/ThemeToggle';
 
 // Debounce helper function
 function useDebounce<T>(value: T, delay: number): T {
@@ -34,6 +36,7 @@ const isValidEmail = (email: string): boolean => {
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { isDark } = useTheme();
   const [formData, setFormData] = useState({
     firstName: '',
     middleName: '',
@@ -174,33 +177,37 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className={`min-h-screen ${isDark ? 'bg-gray-900' : 'bg-gray-50'} flex flex-col justify-center py-12 sm:px-6 lg:px-8 transition-colors duration-200`}>
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
           <FaSwimmer className="h-12 w-12 text-teal-500" />
         </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+        <h2 className={`mt-6 text-center text-3xl font-extrabold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>
           Create your account
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
+        <p className={`mt-2 text-center text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'} transition-colors duration-200`}>
           Already have an account?{' '}
-          <Link href="/login" className="font-medium text-teal-600 hover:text-teal-500">
+          <Link href="/login" className="font-medium text-teal-500 hover:text-teal-400">
             Sign in
           </Link>
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} py-8 px-4 shadow sm:rounded-lg sm:px-10 transition-colors duration-200`}>
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
               <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="firstName" className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} transition-colors duration-200`}>
                   First Name
                 </label>
                 <div className="mt-1 relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FaUser className="h-5 w-5 text-gray-400" />
+                    <FaUser className={`h-5 w-5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                   </div>
                   <input
                     id="firstName"
@@ -209,7 +216,17 @@ export default function RegisterPage() {
                     required
                     value={formData.firstName}
                     onChange={handleChange}
-                    className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 text-gray-900"
+                    className={`appearance-none block w-full pl-10 pr-3 py-2 border ${
+                      errors.firstName 
+                        ? 'border-red-300' 
+                        : isDark 
+                          ? 'border-gray-600' 
+                          : 'border-gray-300'
+                    } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 ${
+                      isDark 
+                        ? 'bg-gray-700 text-white' 
+                        : 'bg-white text-gray-900'
+                    } transition-colors duration-200`}
                     placeholder="John"
                   />
                 </div>
@@ -217,12 +234,12 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <label htmlFor="middleName" className="block text-sm font-medium text-gray-700">
-                  Middle Name <span className="text-gray-400 text-xs">(optional)</span>
+                <label htmlFor="middleName" className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} transition-colors duration-200`}>
+                  Middle Name <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>(optional)</span>
                 </label>
                 <div className="mt-1 relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FaUser className="h-5 w-5 text-gray-400" />
+                    <FaUser className={`h-5 w-5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                   </div>
                   <input
                     id="middleName"
@@ -230,7 +247,17 @@ export default function RegisterPage() {
                     type="text"
                     value={formData.middleName}
                     onChange={handleChange}
-                    className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 text-gray-900"
+                    className={`appearance-none block w-full pl-10 pr-3 py-2 border ${
+                      errors.middleName 
+                        ? 'border-red-300' 
+                        : isDark 
+                          ? 'border-gray-600' 
+                          : 'border-gray-300'
+                    } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 ${
+                      isDark 
+                        ? 'bg-gray-700 text-white' 
+                        : 'bg-white text-gray-900'
+                    } transition-colors duration-200`}
                     placeholder="Michael"
                   />
                 </div>
@@ -238,12 +265,12 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="lastName" className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} transition-colors duration-200`}>
                   Last Name
                 </label>
                 <div className="mt-1 relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FaUser className="h-5 w-5 text-gray-400" />
+                    <FaUser className={`h-5 w-5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                   </div>
                   <input
                     id="lastName"
@@ -252,7 +279,17 @@ export default function RegisterPage() {
                     required
                     value={formData.lastName}
                     onChange={handleChange}
-                    className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 text-gray-900"
+                    className={`appearance-none block w-full pl-10 pr-3 py-2 border ${
+                      errors.lastName 
+                        ? 'border-red-300' 
+                        : isDark 
+                          ? 'border-gray-600' 
+                          : 'border-gray-300'
+                    } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 ${
+                      isDark 
+                        ? 'bg-gray-700 text-white' 
+                        : 'bg-white text-gray-900'
+                    } transition-colors duration-200`}
                     placeholder="Doe"
                   />
                 </div>
@@ -261,12 +298,12 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="email" className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} transition-colors duration-200`}>
                 Email address
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaEnvelope className="h-5 w-5 text-gray-400" />
+                  <FaEnvelope className={`h-5 w-5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                 </div>
                 <input
                   id="email"
@@ -276,7 +313,17 @@ export default function RegisterPage() {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 text-gray-900"
+                  className={`appearance-none block w-full pl-10 pr-3 py-2 border ${
+                    errors.email 
+                      ? 'border-red-300' 
+                      : isDark 
+                        ? 'border-gray-600' 
+                        : 'border-gray-300'
+                  } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 ${
+                    isDark 
+                      ? 'bg-gray-700 text-white' 
+                      : 'bg-white text-gray-900'
+                  } transition-colors duration-200`}
                   placeholder="you@example.com"
                 />
               </div>
@@ -284,12 +331,12 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="password" className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} transition-colors duration-200`}>
                 Password
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaLock className="h-5 w-5 text-gray-400" />
+                  <FaLock className={`h-5 w-5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                 </div>
                 <input
                   id="password"
@@ -299,7 +346,17 @@ export default function RegisterPage() {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 text-gray-900"
+                  className={`appearance-none block w-full pl-10 pr-3 py-2 border ${
+                    errors.password 
+                      ? 'border-red-300' 
+                      : isDark 
+                        ? 'border-gray-600' 
+                        : 'border-gray-300'
+                  } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 ${
+                    isDark 
+                      ? 'bg-gray-700 text-white' 
+                      : 'bg-white text-gray-900'
+                  } transition-colors duration-200`}
                   placeholder="••••••••"
                 />
               </div>
@@ -307,12 +364,12 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="confirmPassword" className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} transition-colors duration-200`}>
                 Confirm Password
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaLock className="h-5 w-5 text-gray-400" />
+                  <FaLock className={`h-5 w-5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                 </div>
                 <input
                   id="confirmPassword"
@@ -323,16 +380,20 @@ export default function RegisterPage() {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   className={`appearance-none block w-full pl-10 pr-3 py-2 border ${
-                    errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
-                  } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 text-gray-900 transition-colors duration-200`}
+                    errors.confirmPassword 
+                      ? 'border-red-300' 
+                      : isDark 
+                        ? 'border-gray-600' 
+                        : 'border-gray-300'
+                  } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 ${
+                    isDark 
+                      ? 'bg-gray-700 text-white' 
+                      : 'bg-white text-gray-900'
+                  } transition-colors duration-200`}
                   placeholder="••••••••"
                 />
               </div>
-              {errors.confirmPassword && (
-                <p className="mt-2 text-sm text-red-600 transition-opacity duration-200">
-                  {errors.confirmPassword}
-                </p>
-              )}
+              {errors.confirmPassword && <p className="mt-2 text-sm text-red-600">{errors.confirmPassword}</p>}
             </div>
 
             <div>

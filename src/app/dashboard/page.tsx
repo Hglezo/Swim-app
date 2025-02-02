@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { FaSwimmer, FaChartLine, FaSignOutAlt, FaCalendarAlt, FaHome, FaClock, FaTrophy, FaFire } from 'react-icons/fa';
 import { MdDashboard, MdPerson } from 'react-icons/md';
 import React from 'react';
+import { useTheme } from '@/contexts/ThemeContext';
+import ThemeToggle from '@/components/ThemeToggle';
 
 interface Workout {
   count: number;
@@ -88,6 +90,7 @@ const formatDuration = (minutes: number): string => {
 };
 
 const DashboardPage: React.FC = () => {
+  const { isDark } = useTheme();
   const currentDate = new Date();
 
   // Initialize empty current month stats
@@ -102,38 +105,39 @@ const DashboardPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={`min-h-screen flex flex-col ${isDark ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className={`${isDark ? 'bg-gray-800' : 'bg-white'} shadow-sm transition-colors duration-200`}>
         <nav className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center hover:text-teal-500 transition-colors">
             <FaSwimmer className="h-8 w-8 text-teal-500" />
-            <span className="ml-2 text-xl font-semibold text-gray-900">SwimTracker</span>
+            <span className={`ml-2 text-xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>SwimTracker</span>
           </Link>
           <div className="flex items-center space-x-6">
-            <Link href="/" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center">
+            <ThemeToggle />
+            <Link href="/" className={`${isDark ? 'text-gray-300 hover:text-teal-400' : 'text-gray-700 hover:text-teal-500'} transition-colors flex items-center`}>
               <FaHome className="h-5 w-5 mr-2" />
               Home
             </Link>
-            <Link href="/history" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center">
+            <Link href="/history" className={`${isDark ? 'text-gray-300 hover:text-teal-400' : 'text-gray-700 hover:text-teal-500'} transition-colors flex items-center`}>
               <FaCalendarAlt className="h-5 w-5 mr-2" />
               Calendar
             </Link>
-            <Link href="/dashboard" className="text-teal-500 flex items-center">
+            <Link href="/dashboard" className={`${isDark ? 'text-teal-400' : 'text-teal-500'} transition-colors flex items-center`}>
               <MdDashboard className="h-5 w-5 mr-2" />
               Dashboard
             </Link>
-            <Link href="/insights" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center">
+            <Link href="/insights" className={`${isDark ? 'text-gray-300 hover:text-teal-400' : 'text-gray-700 hover:text-teal-500'} transition-colors flex items-center`}>
               <FaChartLine className="h-5 w-5 mr-2" />
               Insights
             </Link>
-            <Link href="/profile" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center">
+            <Link href="/profile" className={`${isDark ? 'text-gray-300 hover:text-teal-400' : 'text-gray-700 hover:text-teal-500'} transition-colors flex items-center`}>
               <MdPerson className="h-5 w-5 mr-2" />
               Profile
             </Link>
             <Link 
               href="/logout" 
-              className="text-gray-700 hover:text-teal-500 transition-colors flex items-center"
+              className={`${isDark ? 'text-gray-300 hover:text-teal-400' : 'text-gray-700 hover:text-teal-500'} transition-colors flex items-center`}
             >
               <FaSignOutAlt className="h-5 w-5 mr-2" />
               Log Out
@@ -142,10 +146,10 @@ const DashboardPage: React.FC = () => {
         </nav>
       </header>
 
-      <main className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className={`max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-8 ${isDark ? 'bg-gray-900' : 'bg-gray-50'} transition-colors duration-200`}>
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600">Overview of your swimming performance</p>
+          <h1 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>Dashboard</h1>
+          <p className={`${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>Overview of your swimming performance</p>
         </div>
 
         {/* Current Month Stats */}

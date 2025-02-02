@@ -1,6 +1,7 @@
 'use client';
 
 import { PreferencesProvider } from '@/contexts/PreferencesContext';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 
 export default function ClientLayout({
   children,
@@ -8,8 +9,10 @@ export default function ClientLayout({
   children: React.ReactNode;
 }) {
   return (
-    <PreferencesProvider>
-      {children}
-    </PreferencesProvider>
+    <ThemeProvider>
+      <PreferencesProvider>
+        {children}
+      </PreferencesProvider>
+    </ThemeProvider>
   );
 } 
