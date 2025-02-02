@@ -1198,7 +1198,7 @@ const HistoryPage = () => {
             {/* Calendar Grid with Weekly Summaries */}
             <div className="grid grid-cols-12 gap-4">
               {/* Main Calendar */}
-              <div className={`col-span-9 ${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow overflow-hidden transition-colors duration-200`}>
+              <div className={`col-span-10 ${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow overflow-hidden transition-colors duration-200`}>
                 {/* Day Headers */}
                 <div className={`grid grid-cols-7 gap-px ${isDark ? 'bg-gray-700' : 'bg-gray-200'} border-b ${isDark ? 'border-gray-700' : 'border-gray-200'} transition-colors duration-200`}>
                   {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
@@ -1220,8 +1220,8 @@ const HistoryPage = () => {
                     return (
                       <div
                         key={index}
-                        className={`${isDark ? 'bg-gray-800' : 'bg-white'} min-h-[120px] p-2 flex flex-col relative group ${
-                          isCurrentMonth ? 'hover:bg-gray-700' : 'bg-gray-50/50'
+                        className={`${isDark ? 'bg-gray-800 hover:bg-gray-700' : 'bg-white hover:bg-gray-50'} min-h-[120px] p-2 flex flex-col relative group ${
+                          isCurrentMonth ? '' : 'bg-gray-50/50'
                         } ${isToday(date) ? 'ring-2 ring-teal-500' : ''}`}
                       >
                         <div className="flex justify-between items-center mb-1">
@@ -1303,7 +1303,7 @@ const HistoryPage = () => {
               </div>
 
               {/* Weekly Summaries */}
-              <div className="col-span-3 space-y-4">
+              <div className="col-span-2 space-y-4">
                 <div className={`text-base font-bold ${isDark ? 'text-white' : 'text-gray-900'} border-b ${isDark ? 'border-gray-700' : 'border-teal-100'} pb-1 px-3 transition-colors duration-200`}>Weekly Summary</div>
                 {Array.from({ length: weeksInMonth }).map((_, weekIndex) => {
                   const weekStart = new Date(monthStart);
