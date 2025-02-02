@@ -5,6 +5,8 @@ import { FaSwimmer, FaArrowLeft, FaArrowRight, FaHome, FaCalendarAlt, FaChartLin
 import { MdDashboard, MdPerson } from 'react-icons/md';
 import { useState, useEffect } from 'react';
 import { usePreferences } from '@/contexts/PreferencesContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import ThemeToggle from '@/components/ThemeToggle';
 import DailySummary from './components/DailySummary';
 import WeeklySummary from './components/WeeklySummary';
 import MonthSummary from './components/MonthSummary';
@@ -85,6 +87,7 @@ const WorkoutDetailModal = ({
   setWorkouts: (workouts: WorkoutRecord) => void;
   updateWorkoutInPlace: (date: string, id: string, text: string, summary: any) => void;
 }) => {
+  const { isDark } = useTheme();
   if (!workout) return null;
 
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
@@ -211,11 +214,11 @@ const WorkoutDetailModal = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 relative">
+      <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-xl max-w-2xl w-full mx-4 relative transition-colors duration-200`}>
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+          className={`absolute top-4 right-4 ${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'} transition-colors duration-200`}
         >
           <FaTimes className="h-5 w-5" />
         </button>
@@ -223,7 +226,7 @@ const WorkoutDetailModal = ({
         {/* Content */}
         <div className="p-6">
           <div className="mb-4">
-            <h3 className="text-xl font-semibold text-gray-900">
+            <h3 className={`text-xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>
               Workout Details
             </h3>
           </div>
@@ -231,23 +234,23 @@ const WorkoutDetailModal = ({
           <div className="space-y-4">
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-500">Total Distance</span>
-                <span className="text-2xl font-bold text-gray-900">
+                <span className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'} transition-colors duration-200`}>Total Distance</span>
+                <span className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>
                   {currentSummary.totalDistance.toLocaleString()} {poolType === 'SCY' ? 'yards' : 'meters'}
                 </span>
               </div>
               
               {/* Stroke distances */}
               <div className="mb-6">
-                <h3 className="text-sm font-medium text-gray-700 mb-3">Distance by Stroke</h3>
+                <h3 className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} mb-3 transition-colors duration-200`}>Distance by Stroke</h3>
                 <div className="space-y-2">
                   {Object.entries(currentSummary.strokeDistances)
                     .filter(([_, distance]) => distance > 0)
                     .map(([stroke, distance]) => (
                       <div key={stroke} className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600 capitalize">{stroke}</span>
-                        <span className="text-sm font-medium text-gray-900">
-                          {distance.toLocaleString()} {poolType === 'SCY' ? 'yards' : 'meters'}
+                        <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'} capitalize transition-colors duration-200`}>{stroke}:</span>
+                        <span className={`text-sm font-medium ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>
+                          {distance}m
                         </span>
                       </div>
                     ))
@@ -258,12 +261,12 @@ const WorkoutDetailModal = ({
               {/* Distance by Intensity */}
               {Object.keys(currentSummary.intensityDistances || {}).length > 0 && (
                 <div className="mb-6">
-                  <h3 className="text-sm font-medium text-gray-700 mb-3">Distance by Intensity</h3>
+                  <h3 className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} mb-3 transition-colors duration-200`}>Distance by Intensity</h3>
                   <div className="space-y-2">
                     {Object.entries(currentSummary.intensityDistances || {}).map(([intensity, distance]) => (
                       <div key={intensity} className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">{intensity}</span>
-                        <span className="text-sm font-medium text-gray-900">
+                        <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'} transition-colors duration-200`}>{intensity}:</span>
+                        <span className={`text-sm font-medium ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>
                           {(distance as number).toLocaleString()} {poolType === 'SCY' ? 'yards' : 'meters'}
                         </span>
                       </div>
@@ -275,13 +278,13 @@ const WorkoutDetailModal = ({
 
             {/* Workout text */}
             <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-2">
+              <h4 className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} mb-2 transition-colors duration-200`}>
                 Workout Details
                 {isParsingWorkout && (
                   <span className="ml-2 text-xs text-gray-500">Updating summary...</span>
                 )}
               </h4>
-              <div className={`rounded-lg ${isEditing ? 'bg-white p-1' : 'bg-gray-50 p-4'}`}>
+              <div className={`rounded-lg ${isEditing ? 'bg-white p-1' : 'bg-gray-50 p-4'} transition-colors duration-200`}>
                 {isEditing ? (
                   <textarea
                     value={editedText}
@@ -305,7 +308,7 @@ const WorkoutDetailModal = ({
             {/* Format Examples */}
             {isEditing && (
               <div className="mt-6 pt-6 border-t border-gray-200">
-                <h3 className="text-sm font-medium text-gray-700 mb-2">Format Examples:</h3>
+                <h3 className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} mb-2 transition-colors duration-200`}>Format Examples:</h3>
                 <div className="text-xs text-gray-600 space-y-1">
                   <p>Stroke Types: drill/dr, kick/k, scull</p>
                   <p>Heart Rate: hr150-hr190 (by 5)</p>
@@ -329,13 +332,13 @@ const WorkoutDetailModal = ({
                     setCurrentSummary(workout.summary);
                     setParseError(null);
                   }}
-                  className="flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors"
+                  className={`flex items-center px-4 py-2 text-sm font-medium ${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'} transition-colors`}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSave}
-                  className="flex items-center px-4 py-2 text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 rounded-md transition-colors"
+                  className={`flex items-center px-4 py-2 text-sm font-medium ${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-white bg-teal-600 hover:bg-teal-700'} rounded-md transition-colors`}
                 >
                   <FaEdit className="h-4 w-4 mr-2" />
                   Save Changes
@@ -344,7 +347,7 @@ const WorkoutDetailModal = ({
             ) : (
               <button
                 onClick={() => setIsEditing(true)}
-                className="flex items-center px-4 py-2 text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 rounded-md transition-colors"
+                className={`flex items-center px-4 py-2 text-sm font-medium ${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-white bg-teal-600 hover:bg-teal-700'} rounded-md transition-colors`}
               >
                 <FaEdit className="h-4 w-4 mr-2" />
                 Edit Workout
@@ -354,16 +357,16 @@ const WorkoutDetailModal = ({
             {/* Delete button and confirmation */}
             {showConfirmDelete ? (
               <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-600">Are you sure?</span>
+                <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'} transition-colors duration-200`}>Are you sure?</span>
                 <button
                   onClick={() => setShowConfirmDelete(false)}
-                  className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors"
+                  className={`px-4 py-2 text-sm font-medium ${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'} transition-colors`}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleDelete}
-                  className="flex items-center px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors"
+                  className={`flex items-center px-4 py-2 text-sm font-medium ${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-white bg-red-600 hover:bg-red-700'} rounded-md transition-colors`}
                 >
                   <FaTrash className="h-4 w-4 mr-2" />
                   Confirm Delete
@@ -372,7 +375,7 @@ const WorkoutDetailModal = ({
             ) : (
               <button
                 onClick={handleDelete}
-                className="flex items-center px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors"
+                className={`flex items-center px-4 py-2 text-sm font-medium ${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-white bg-red-600 hover:bg-red-700'} rounded-md transition-colors`}
               >
                 <FaTrash className="h-4 w-4 mr-2" />
                 Delete Workout
@@ -483,20 +486,21 @@ const ExpandableWorkout = ({
   );
 };
 
-export default function CalendarPage() {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [currentView, setCurrentView] = useState<CalendarView>('month');
-  const [workouts, setWorkouts] = useState<WorkoutRecord>({});
+const HistoryPage = () => {
   const { preferences } = usePreferences();
+  const { isDark } = useTheme();
+  const [view, setView] = useState<CalendarView>('month');
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [workouts, setWorkouts] = useState<WorkoutRecord>({});
   const [selectedWorkout, setSelectedWorkout] = useState<SelectedWorkout>(null);
-  const [poolType, setPoolType] = useState<'SCY' | 'SCM' | 'LCM'>('LCM');
+  const [poolType, setPoolType] = useState('SCM'); // SCM = Short Course Meters
   const [expandedWorkoutId, setExpandedWorkoutId] = useState<string | null>(null);
 
   // Load workouts for the current month
   useEffect(() => {
     const loadWorkouts = async () => {
       try {
-        const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        const startDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
         const response = await fetch(`/api/workouts?date=${startDate.toISOString()}`);
         if (!response.ok) {
           throw new Error('Failed to load workouts');
@@ -509,7 +513,7 @@ export default function CalendarPage() {
     };
 
     loadWorkouts();
-  }, [currentDate]);
+  }, [selectedDate]);
 
   // Helper function to update a workout in place
   const updateWorkoutInPlace = (date: string, id: string, text: string, summary: any) => {
@@ -545,7 +549,7 @@ export default function CalendarPage() {
       }
 
       // Refresh workouts data
-      const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+      const startDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
       const response2 = await fetch(`/api/workouts?date=${startDate.toISOString()}`);
       if (!response2.ok) {
         throw new Error('Failed to reload workouts');
@@ -561,8 +565,8 @@ export default function CalendarPage() {
   };
 
   // Calculate first day of month and number of weeks
-  const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
-  const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+  const firstDayOfMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1).getDay();
+  const lastDayOfMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0).getDate();
   const weeks = Math.ceil((firstDayOfMonth + lastDayOfMonth) / 7);
 
   // Helper function to check if a date is today
@@ -597,11 +601,11 @@ export default function CalendarPage() {
 
   // Add navigation functions
   const goToPreviousMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+    setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth() - 1, 1));
   };
 
   const goToNextMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+    setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 1));
   };
 
   // Helper function to get workouts for a specific week
@@ -617,69 +621,69 @@ export default function CalendarPage() {
 
   // Modify the renderCalendarView function to handle 'today' view
   const renderCalendarView = () => {
-    switch (currentView) {
+    switch (view) {
       case 'today':
       case 'day': {
-        const dayWorkouts = workouts[formatDateString(currentDate)] || [];
-        const isTodays = currentView === 'today' && isToday(currentDate);
+        const dayWorkouts = workouts[formatDateString(selectedDate)] || [];
+        const isTodays = view === 'today' && isToday(selectedDate);
         
         return (
           <div className="space-y-6">
             {/* Day Navigation */}
-            <div className="flex items-center justify-between bg-white rounded-lg shadow-sm p-4 w-fit mx-auto">
+            <div className={`flex items-center justify-between ${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-sm p-4 w-fit mx-auto transition-colors duration-200`}>
               <button
                 onClick={() => {
-                  const newDate = new Date(currentDate);
-                  newDate.setDate(currentDate.getDate() - 1);
-                  setCurrentDate(newDate);
-                  if (currentView === 'today') {
-                    setCurrentView('day');
+                  const newDate = new Date(selectedDate);
+                  newDate.setDate(selectedDate.getDate() - 1);
+                  setSelectedDate(newDate);
+                  if (view === 'today') {
+                    setView('day');
                   }
                 }}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                className={`p-2 ${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} rounded-full transition-colors duration-200`}
               >
-                <FaArrowLeft className="h-5 w-5 text-gray-600" />
+                <FaArrowLeft className={`h-5 w-5 ${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`} />
               </button>
-              <h2 className="text-xl font-semibold text-gray-900 mx-4">
-                {isTodays ? 'Today' : currentDate.toLocaleDateString('default', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+              <h2 className={`text-xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'} mx-4 transition-colors duration-200`}>
+                {isTodays ? 'Today' : selectedDate.toLocaleDateString('default', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
               </h2>
               <button
                 onClick={() => {
-                  const newDate = new Date(currentDate);
-                  newDate.setDate(currentDate.getDate() + 1);
-                  setCurrentDate(newDate);
-                  if (currentView === 'today') {
-                    setCurrentView('day');
+                  const newDate = new Date(selectedDate);
+                  newDate.setDate(selectedDate.getDate() + 1);
+                  setSelectedDate(newDate);
+                  if (view === 'today') {
+                    setView('day');
                   }
                 }}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                className={`p-2 ${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} rounded-full transition-colors duration-200`}
               >
-                <FaArrowRight className="h-5 w-5 text-gray-600" />
+                <FaArrowRight className={`h-5 w-5 ${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`} />
               </button>
             </div>
 
             {/* Workouts List with Expandable Details */}
             <div className="space-y-4">
               {dayWorkouts.map((workout) => (
-                <ExpandableWorkout
-                  key={workout.id}
-                  workout={workout}
-                  date={formatDateString(currentDate)}
-                  isExpanded={expandedWorkoutId === workout.id}
-                  onToggle={() => {
-                    setExpandedWorkoutId(expandedWorkoutId === workout.id ? null : workout.id);
-                  }}
-                  onEdit={() => setSelectedWorkout({ ...workout, date: formatDateString(currentDate) })}
-                  onDelete={() => {
-                    setSelectedWorkout({ ...workout, date: formatDateString(currentDate) });
-                    handleDeleteWorkout();
-                  }}
-                />
+                <div key={workout.id} className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-sm p-4 transition-colors duration-200`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <FaSwimmer className={`h-4 w-4 text-teal-500 mr-2`} />
+                      <span className={`${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {workout.summary.totalDistance.toLocaleString()}m
+                      </span>
+                    </div>
+                    <div className="flex items-center text-gray-500">
+                      <FaClock className="h-3 w-3 mr-0.5" />
+                      {formatDuration(getTotalDuration(workout))}
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
 
             {/* Add Workout Button */}
-            <div className="flex justify-end mb-6">
+            <div className="flex justify-end">
               <button
                 onClick={() => setSelectedWorkout({ 
                   id: '', 
@@ -697,9 +701,13 @@ export default function CalendarPage() {
                     intensityDistances: {}
                   },
                   createdAt: new Date().toISOString(),
-                  date: formatDateString(currentDate)
+                  date: formatDateString(selectedDate)
                 })}
-                className="flex items-center px-4 py-2 text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
+                className={`flex items-center px-4 py-2 rounded-lg ${
+                  isDark 
+                    ? 'text-teal-400 hover:text-teal-300' 
+                    : 'text-teal-600 hover:text-teal-500'
+                } transition-colors duration-200`}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
@@ -709,48 +717,24 @@ export default function CalendarPage() {
             </div>
 
             {/* Daily Summary */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Daily Summary</h3>
+            <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-sm p-6 transition-colors duration-200`}>
+              <h3 className={`text-lg font-medium ${isDark ? 'text-white' : 'text-gray-900'} mb-4 transition-colors duration-200`}>Daily Summary</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <div className="text-sm font-medium text-gray-500 mb-2">Total Distance</div>
-                  <div className="text-2xl font-bold text-teal-600">
+                  <div className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-2 transition-colors duration-200`}>Total Distance</div>
+                  <div className={`text-2xl font-bold ${isDark ? 'text-teal-400' : 'text-teal-600'} transition-colors duration-200`}>
                     {dayWorkouts.length ? formatToKm(dayWorkouts.reduce((sum, w) => sum + w.summary.totalDistance, 0)) : 'N/A'}
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm font-medium text-gray-500 mb-2">Total Time</div>
-                  <div className="text-2xl font-bold text-gray-900">
+                  <div className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-2 transition-colors duration-200`}>Total Time</div>
+                  <div className={`text-2xl font-bold ${isDark ? 'text-teal-400' : 'text-teal-600'} transition-colors duration-200`}>
                     {dayWorkouts.length ? formatDuration(dayWorkouts.reduce((sum, w) => sum + getTotalDuration(w), 0)) : 'N/A'}
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm font-medium text-gray-500 mb-2">Workouts</div>
-                  <div className="text-2xl font-bold text-gray-900">{dayWorkouts.length || '0'}</div>
-                </div>
-              </div>
-              <div className="mt-6">
-                <h4 className="text-sm font-medium text-gray-700 mb-3">Distance by Stroke</h4>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {dayWorkouts.length ? (
-                    Object.entries(
-                      dayWorkouts.reduce((acc, workout) => {
-                        Object.entries(workout.summary.strokeDistances).forEach(([stroke, distance]) => {
-                          acc[stroke] = (acc[stroke] || 0) + distance;
-                        });
-                        return acc;
-                      }, {} as Record<string, number>)
-                    )
-                      .filter(([_, distance]) => distance > 0)
-                      .map(([stroke, distance]) => (
-                        <div key={stroke} className="flex justify-between">
-                          <span className="text-gray-600 capitalize">{stroke}:</span>
-                          <span className="font-medium text-gray-900">{distance}m</span>
-                        </div>
-                      ))
-                  ) : (
-                    <div className="text-gray-500">No stroke data available</div>
-                  )}
+                  <div className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-2 transition-colors duration-200`}>Workouts</div>
+                  <div className={`text-2xl font-bold ${isDark ? 'text-teal-400' : 'text-teal-600'} transition-colors duration-200`}>{dayWorkouts.length || '0'}</div>
                 </div>
               </div>
             </div>
@@ -760,8 +744,8 @@ export default function CalendarPage() {
 
       case 'week': {
         const weekWorkouts = Array.from({ length: 7 }).map((_, index) => {
-          const date = new Date(currentDate);
-          date.setDate(currentDate.getDate() - currentDate.getDay() + index + 1);
+          const date = new Date(selectedDate);
+          date.setDate(selectedDate.getDate() - selectedDate.getDay() + index + 1);
           const dateString = formatDateString(date);
           return workouts[dateString] || [];
         }).flat();
@@ -769,21 +753,21 @@ export default function CalendarPage() {
         return (
           <div className="space-y-6">
             {/* Week Navigation */}
-            <div className="flex items-center justify-between bg-white rounded-lg shadow-sm p-4 w-fit mx-auto">
+            <div className={`flex items-center justify-between ${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-sm p-4 w-fit mx-auto transition-colors duration-200`}>
               <button
                 onClick={() => {
-                  const newDate = new Date(currentDate);
-                  newDate.setDate(currentDate.getDate() - 7);
-                  setCurrentDate(newDate);
+                  const newDate = new Date(selectedDate);
+                  newDate.setDate(selectedDate.getDate() - 7);
+                  setSelectedDate(newDate);
                 }}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                className={`p-2 ${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} rounded-full transition-colors duration-200`}
               >
-                <FaArrowLeft className="h-5 w-5 text-gray-600" />
+                <FaArrowLeft className={`h-5 w-5 ${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`} />
               </button>
-              <h2 className="text-xl font-semibold text-gray-900 mx-4">
+              <h2 className={`text-xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'} mx-4 transition-colors duration-200`}>
                 {(() => {
-                  const weekStart = new Date(currentDate);
-                  weekStart.setDate(currentDate.getDate() - currentDate.getDay() + 1);
+                  const weekStart = new Date(selectedDate);
+                  weekStart.setDate(selectedDate.getDate() - selectedDate.getDay() + 1);
                   const weekEnd = new Date(weekStart);
                   weekEnd.setDate(weekStart.getDate() + 6);
                   const weekNumber = Math.ceil((weekStart.getDate() - weekStart.getDay() + 1) / 7);
@@ -794,38 +778,41 @@ export default function CalendarPage() {
               </h2>
               <button
                 onClick={() => {
-                  const newDate = new Date(currentDate);
-                  newDate.setDate(currentDate.getDate() + 7);
-                  setCurrentDate(newDate);
+                  const newDate = new Date(selectedDate);
+                  newDate.setDate(selectedDate.getDate() + 7);
+                  setSelectedDate(newDate);
                 }}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                className={`p-2 ${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} rounded-full transition-colors duration-200`}
               >
-                <FaArrowRight className="h-5 w-5 text-gray-600" />
+                <FaArrowRight className={`h-5 w-5 ${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`} />
               </button>
             </div>
 
-            {/* Week View Layout */}
             <div className="grid grid-cols-12 gap-4">
               {/* Main Week View */}
-              <div className="col-span-9 bg-white rounded-lg shadow overflow-hidden">
-                <div className="grid grid-cols-1 divide-y">
+              <div className={`col-span-9 ${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow overflow-hidden transition-colors duration-200`}>
+                <div className="grid grid-cols-1">
                   {Array.from({ length: 7 }).map((_, index) => {
-                    const date = new Date(currentDate);
-                    date.setDate(currentDate.getDate() - currentDate.getDay() + index + 1);
+                    const date = new Date(selectedDate);
+                    date.setDate(selectedDate.getDate() - selectedDate.getDay() + index + 1);
                     const dateString = formatDateString(date);
                     const dayWorkouts = workouts[dateString] || [];
 
                     return (
-                      <div key={index} className={`p-4 ${
-                        isToday(date) ? 'bg-teal-50' : 'hover:bg-gray-50'
-                      } relative group`}>
+                      <div key={index} 
+                        className={`${
+                          isToday(date) ? isDark ? 'bg-teal-900/20' : 'bg-teal-50' : isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
+                        } relative group transition-colors duration-200 p-4 ${
+                          index !== 6 ? isDark ? 'border-b border-gray-700/50' : 'border-b border-gray-100' : ''
+                        }`}
+                      >
                         <div className="flex items-center justify-between mb-3">
                           <h4 className={`font-medium ${
-                            isToday(date) ? 'text-teal-600' : 'text-gray-900'
-                          }`}>
+                            isToday(date) ? isDark ? 'text-teal-400' : 'text-teal-600' : isDark ? 'text-white' : 'text-gray-900'
+                          } transition-colors duration-200`}>
                             {date.toLocaleDateString('default', { weekday: 'long', month: 'short', day: 'numeric' })}
                           </h4>
-                          {/* Add Workout Button - Only visible on hover */}
+                          {/* Add Workout Button */}
                           <button
                             onClick={() => setSelectedWorkout({ 
                               id: '', 
@@ -852,24 +839,41 @@ export default function CalendarPage() {
                             </svg>
                           </button>
                         </div>
-                        <div className="space-y-2">
-                          {dayWorkouts?.map((workout) => (
-                            <ExpandableWorkout
-                              key={workout.id}
-                              workout={workout}
-                              date={dateString}
-                              isExpanded={expandedWorkoutId === workout.id}
-                              onToggle={() => {
-                                setExpandedWorkoutId(expandedWorkoutId === workout.id ? null : workout.id);
-                              }}
-                              onEdit={() => setSelectedWorkout({ ...workout, date: dateString })}
-                              onDelete={() => {
-                                setSelectedWorkout({ ...workout, date: dateString });
-                                handleDeleteWorkout();
-                              }}
-                            />
-                          ))}
-                        </div>
+                        {dayWorkouts.length > 0 && (
+                          <div className="flex-1 flex flex-col space-y-1">
+                            <div className="flex flex-wrap gap-1">
+                              <span className={`inline-flex items-center px-1.5 py-0.5 text-xs font-medium text-teal-100 ${isDark ? 'bg-teal-600' : 'bg-teal-500'} rounded-full transition-colors duration-200`}>
+                                {dayWorkouts.length}
+                              </span>
+                              <span className={`inline-flex items-center px-1.5 py-0.5 text-xs font-medium text-teal-100 ${isDark ? 'bg-teal-500' : 'bg-teal-400'} rounded-full transition-colors duration-200`}>
+                                {formatToKm(dayWorkouts.reduce((total, w) => total + w.summary.totalDistance, 0))}
+                              </span>
+                            </div>
+                            {/* Workouts List */}
+                            <div className="space-y-1 overflow-y-auto max-h-[80px]">
+                              {dayWorkouts.map((workout) => (
+                                <div
+                                  key={workout.id}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedWorkout({ ...workout, date: dateString });
+                                  }}
+                                  className={`text-xs ${isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-50 hover:bg-gray-100'} rounded p-1.5 cursor-pointer transition-colors duration-200`}
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <span className={`${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>
+                                      {formatToKm(workout.summary.totalDistance)}
+                                    </span>
+                                    <div className={`flex items-center ${isDark ? 'text-gray-400' : 'text-gray-500'} transition-colors duration-200`}>
+                                      <FaClock className="h-3 w-3 mr-0.5" />
+                                      {formatDuration(getTotalDuration(workout))}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     );
                   })}
@@ -878,10 +882,12 @@ export default function CalendarPage() {
 
               {/* Daily Summaries */}
               <div className="col-span-3 space-y-4">
-                <div className="text-base font-bold text-gray-900 border-b border-teal-100 pb-1 px-3">Daily Summary</div>
+                <div className={`text-base font-bold ${isDark ? 'text-white' : 'text-gray-900'} border-b ${isDark ? 'border-gray-700' : 'border-teal-100'} pb-1 px-3 transition-colors duration-200`}>
+                  Daily Summary
+                </div>
                 {Array.from({ length: 7 }).map((_, index) => {
-                  const date = new Date(currentDate);
-                  date.setDate(currentDate.getDate() - currentDate.getDay() + index + 1);
+                  const date = new Date(selectedDate);
+                  date.setDate(selectedDate.getDate() - selectedDate.getDay() + index + 1);
                   const dateString = formatDateString(date);
                   const dayWorkouts = workouts[dateString] || [];
 
@@ -889,22 +895,22 @@ export default function CalendarPage() {
                   const totalTime = dayWorkouts.reduce((sum, w) => sum + getTotalDuration(w), 0);
 
                   return (
-                    <div key={index} className="bg-white rounded-lg shadow-sm p-3">
-                      <div className="text-base font-bold text-gray-900 mb-2">
+                    <div key={index} className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-sm p-3 transition-colors duration-200`}>
+                      <div className={`text-base font-bold ${isDark ? 'text-white' : 'text-gray-900'} mb-2 transition-colors duration-200`}>
                         {date.toLocaleDateString('default', { weekday: 'short' })}
                       </div>
                       <div className="space-y-1.5 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Workouts:</span>
-                          <span className="font-medium text-teal-600">{dayWorkouts.length || '0'}</span>
+                          <span className={`${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>Workouts:</span>
+                          <span className={`font-medium ${isDark ? 'text-teal-400' : 'text-teal-600'} transition-colors duration-200`}>{dayWorkouts.length || '0'}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Distance:</span>
-                          <span className="font-medium text-teal-600">{dayWorkouts.length ? formatToKm(totalDistance) : 'N/A'}</span>
+                          <span className={`${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>Distance:</span>
+                          <span className={`font-medium ${isDark ? 'text-teal-400' : 'text-teal-600'} transition-colors duration-200`}>{dayWorkouts.length ? formatToKm(totalDistance) : 'N/A'}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Time:</span>
-                          <span className="font-medium text-teal-600">{dayWorkouts.length ? formatDuration(totalTime) : 'N/A'}</span>
+                          <span className={`${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>Time:</span>
+                          <span className={`font-medium ${isDark ? 'text-teal-400' : 'text-teal-600'} transition-colors duration-200`}>{dayWorkouts.length ? formatDuration(totalTime) : 'N/A'}</span>
                         </div>
                       </div>
                     </div>
@@ -914,11 +920,11 @@ export default function CalendarPage() {
             </div>
 
             {/* Week Summary */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
+            <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-sm p-6 transition-colors duration-200`}>
+              <h3 className={`text-lg font-medium ${isDark ? 'text-white' : 'text-gray-900'} mb-4 transition-colors duration-200`}>
                 {(() => {
-                  const weekStart = new Date(currentDate);
-                  weekStart.setDate(currentDate.getDate() - currentDate.getDay() + 1);
+                  const weekStart = new Date(selectedDate);
+                  weekStart.setDate(selectedDate.getDate() - selectedDate.getDay() + 1);
                   const weekEnd = new Date(weekStart);
                   weekEnd.setDate(weekStart.getDate() + 6);
                   const weekNumber = Math.ceil((weekStart.getDate() - weekStart.getDay() + 1) / 7);
@@ -929,30 +935,30 @@ export default function CalendarPage() {
               </h3>
               <div className="grid grid-cols-5 gap-6">
                 <div>
-                  <div className="text-sm font-medium text-gray-500 mb-2">Total Workouts</div>
-                  <div className="text-xl font-bold text-gray-900">{weekWorkouts.length}</div>
+                  <div className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'} mb-2 transition-colors duration-200`}>Total Workouts</div>
+                  <div className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>{weekWorkouts.length}</div>
                 </div>
                 <div>
-                  <div className="text-sm font-medium text-gray-500 mb-2">Total Distance</div>
-                  <div className="text-xl font-bold text-teal-600">
+                  <div className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'} mb-2 transition-colors duration-200`}>Total Distance</div>
+                  <div className={`text-xl font-bold ${isDark ? 'text-teal-400' : 'text-teal-600'} transition-colors duration-200`}>
                     {formatToKm(weekWorkouts.reduce((sum, w) => sum + w.summary.totalDistance, 0))}
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm font-medium text-gray-500 mb-2">Total Time</div>
-                  <div className="text-xl font-bold text-gray-900">
+                  <div className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'} mb-2 transition-colors duration-200`}>Total Time</div>
+                  <div className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>
                     {formatDuration(weekWorkouts.reduce((sum, w) => sum + getTotalDuration(w), 0))}
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm font-medium text-gray-500 mb-2">Avg Distance/Workout</div>
-                  <div className="text-xl font-bold text-gray-900">
+                  <div className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'} mb-2 transition-colors duration-200`}>Avg Distance/Workout</div>
+                  <div className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>
                     {weekWorkouts.length ? formatToKm(weekWorkouts.reduce((sum, w) => sum + w.summary.totalDistance, 0) / weekWorkouts.length) : 'N/A'}
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm font-medium text-gray-500 mb-2">Avg Time/Workout</div>
-                  <div className="text-xl font-bold text-gray-900">
+                  <div className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'} mb-2 transition-colors duration-200`}>Avg Time/Workout</div>
+                  <div className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>
                     {weekWorkouts.length ? formatDuration(weekWorkouts.reduce((sum, w) => sum + getTotalDuration(w), 0) / weekWorkouts.length) : 'N/A'}
                   </div>
                 </div>
@@ -966,7 +972,7 @@ export default function CalendarPage() {
         const yearWorkouts = Object.values(workouts).flat();
         const currentYearWorkouts = yearWorkouts.filter(workout => {
           const workoutDate = new Date(workout.createdAt);
-          return workoutDate.getFullYear() === currentDate.getFullYear();
+          return workoutDate.getFullYear() === selectedDate.getFullYear();
         });
 
         // Calculate yearly stats
@@ -975,55 +981,55 @@ export default function CalendarPage() {
         const avgDistance = currentYearWorkouts.length > 0 ? totalDistance / currentYearWorkouts.length : 0;
         const avgTime = currentYearWorkouts.length > 0 ? totalTime / currentYearWorkouts.length : 0;
         const daysWithWorkouts = new Set(currentYearWorkouts.map(w => w.createdAt.split('T')[0])).size;
-        const daysInYear = new Date(currentDate.getFullYear(), 11, 31).getDate() + 
-                          new Date(currentDate.getFullYear(), 10, 30).getDate() + 
-                          new Date(currentDate.getFullYear(), 9, 31).getDate() + 
-                          new Date(currentDate.getFullYear(), 8, 30).getDate() + 
-                          new Date(currentDate.getFullYear(), 7, 31).getDate() + 
-                          new Date(currentDate.getFullYear(), 6, 31).getDate() + 
-                          new Date(currentDate.getFullYear(), 5, 30).getDate() + 
-                          new Date(currentDate.getFullYear(), 4, 31).getDate() + 
-                          new Date(currentDate.getFullYear(), 3, 30).getDate() + 
-                          new Date(currentDate.getFullYear(), 2, 31).getDate() + 
-                          new Date(currentDate.getFullYear(), 1, new Date(currentDate.getFullYear(), 2, 0).getDate()).getDate() + 
-                          new Date(currentDate.getFullYear(), 0, 31).getDate();
+        const daysInYear = new Date(selectedDate.getFullYear(), 11, 31).getDate() + 
+                          new Date(selectedDate.getFullYear(), 10, 30).getDate() + 
+                          new Date(selectedDate.getFullYear(), 9, 31).getDate() + 
+                          new Date(selectedDate.getFullYear(), 8, 30).getDate() + 
+                          new Date(selectedDate.getFullYear(), 7, 31).getDate() + 
+                          new Date(selectedDate.getFullYear(), 6, 31).getDate() + 
+                          new Date(selectedDate.getFullYear(), 5, 30).getDate() + 
+                          new Date(selectedDate.getFullYear(), 4, 31).getDate() + 
+                          new Date(selectedDate.getFullYear(), 3, 30).getDate() + 
+                          new Date(selectedDate.getFullYear(), 2, 31).getDate() + 
+                          new Date(selectedDate.getFullYear(), 1, new Date(selectedDate.getFullYear(), 2, 0).getDate()).getDate() + 
+                          new Date(selectedDate.getFullYear(), 0, 31).getDate();
 
         return (
           <div className="space-y-6">
             {/* Year Navigation */}
-            <div className="flex items-center justify-between bg-white rounded-lg shadow-sm p-4 w-fit mx-auto">
+            <div className={`flex items-center justify-between ${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-sm p-4 w-fit mx-auto transition-colors duration-200`}>
               <button
                 onClick={() => {
-                  const newDate = new Date(currentDate.getFullYear() - 1, currentDate.getMonth(), 1);
-                  setCurrentDate(newDate);
+                  const newDate = new Date(selectedDate.getFullYear() - 1, selectedDate.getMonth(), 1);
+                  setSelectedDate(newDate);
                 }}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                className={`p-2 ${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} rounded-full transition-colors duration-200`}
               >
-                <FaArrowLeft className="h-5 w-5 text-gray-600" />
+                <FaArrowLeft className={`h-5 w-5 ${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`} />
               </button>
-              <h2 className="text-xl font-semibold text-gray-900 mx-4">
-                {currentDate.getFullYear()}
+              <h2 className={`text-xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'} mx-4 transition-colors duration-200`}>
+                {selectedDate.getFullYear()}
               </h2>
               <button
                 onClick={() => {
-                  const newDate = new Date(currentDate.getFullYear() + 1, currentDate.getMonth(), 1);
-                  setCurrentDate(newDate);
+                  const newDate = new Date(selectedDate.getFullYear() + 1, selectedDate.getMonth(), 1);
+                  setSelectedDate(newDate);
                 }}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                className={`p-2 ${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} rounded-full transition-colors duration-200`}
               >
-                <FaArrowRight className="h-5 w-5 text-gray-600" />
+                <FaArrowRight className={`h-5 w-5 ${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`} />
               </button>
             </div>
 
             {/* Year Calendar Grid */}
-            <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow overflow-hidden transition-colors duration-200`}>
               <div className="grid grid-cols-3 md:grid-cols-4 gap-4 p-6">
                 {Array.from({ length: 12 }).map((_, monthIndex) => {
-                  const monthStart = new Date(currentDate.getFullYear(), monthIndex, 1);
+                  const monthStart = new Date(selectedDate.getFullYear(), monthIndex, 1);
                   const monthWorkouts = yearWorkouts.filter(workout => {
                     const workoutDate = new Date(workout.createdAt);
                     return workoutDate.getMonth() === monthIndex && 
-                           workoutDate.getFullYear() === currentDate.getFullYear();
+                           workoutDate.getFullYear() === selectedDate.getFullYear();
                   });
                   
                   const totalDistance = monthWorkouts.reduce((sum, workout) => 
@@ -1037,36 +1043,36 @@ export default function CalendarPage() {
                   return (
                     <div
                       key={monthIndex}
-                      className="bg-gray-50 rounded-lg p-4"
+                      className={`${isDark ? 'bg-gray-700' : 'bg-gray-50'} rounded-lg p-4 transition-colors duration-200`}
                     >
-                      <h3 className="text-lg font-bold text-gray-900 mb-3 hover:text-teal-600 cursor-pointer"
+                      <h3 className={`text-lg font-bold ${isDark ? 'text-white hover:text-teal-400' : 'text-gray-900 hover:text-teal-600'} mb-3 cursor-pointer transition-colors duration-200`}
                           onClick={() => {
-                            setCurrentDate(monthStart);
-                            setCurrentView('month');
+                            setSelectedDate(monthStart);
+                            setView('month');
                           }}>
                         {monthStart.toLocaleDateString('default', { month: 'long' })}
                       </h3>
                       <div className="space-y-2">
-                        <div className="text-sm font-semibold text-teal-600 border-b border-teal-100 pb-1">Summary</div>
+                        <div className={`text-sm font-semibold ${isDark ? 'text-teal-400' : 'text-teal-600'} border-b ${isDark ? 'border-gray-600' : 'border-teal-100'} pb-1 transition-colors duration-200`}>Summary</div>
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-600">Workouts:</span>
-                          <span className="font-medium text-teal-600">{monthWorkouts.length || '0'}</span>
+                          <span className={`${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>Workouts:</span>
+                          <span className={`font-medium ${isDark ? 'text-teal-400' : 'text-teal-600'} transition-colors duration-200`}>{monthWorkouts.length || '0'}</span>
                         </div>
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-600">Distance:</span>
-                          <span className="font-medium text-teal-600">{monthWorkouts.length ? formatToKm(totalDistance) : 'N/A'}</span>
+                          <span className={`${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>Distance:</span>
+                          <span className={`font-medium ${isDark ? 'text-teal-400' : 'text-teal-600'} transition-colors duration-200`}>{monthWorkouts.length ? formatToKm(totalDistance) : 'N/A'}</span>
                         </div>
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-600">Duration:</span>
-                          <span className="font-medium text-teal-600">{monthWorkouts.length ? formatDuration(totalTime) : 'N/A'}</span>
+                          <span className={`${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>Time:</span>
+                          <span className={`font-medium ${isDark ? 'text-teal-400' : 'text-teal-600'} transition-colors duration-200`}>{monthWorkouts.length ? formatDuration(totalTime) : 'N/A'}</span>
                         </div>
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-600">Avg Dist:</span>
-                          <span className="font-medium text-teal-600">{monthWorkouts.length ? formatToKm(avgDistance) : 'N/A'}</span>
+                          <span className={`${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>Avg Distance:</span>
+                          <span className={`font-medium ${isDark ? 'text-teal-400' : 'text-teal-600'} transition-colors duration-200`}>{monthWorkouts.length ? formatToKm(avgDistance) : 'N/A'}</span>
                         </div>
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-600">Avg Time:</span>
-                          <span className="font-medium text-teal-600">{monthWorkouts.length ? formatDuration(avgTime) : 'N/A'}</span>
+                          <span className={`${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>Avg Time:</span>
+                          <span className={`font-medium ${isDark ? 'text-teal-400' : 'text-teal-600'} transition-colors duration-200`}>{monthWorkouts.length ? formatDuration(avgTime) : 'N/A'}</span>
                         </div>
                       </div>
                     </div>
@@ -1078,51 +1084,54 @@ export default function CalendarPage() {
             {/* Year Summary and Chart */}
             <div className="grid grid-cols-12 gap-6">
               {/* Year Summary */}
-              <div className="col-span-4 bg-white rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">{currentDate.getFullYear()} Summary</h3>
+              <div className={`col-span-4 ${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-sm p-6 transition-colors duration-200`}>
+                <h3 className={`text-lg font-medium ${isDark ? 'text-white' : 'text-gray-900'} mb-4 transition-colors duration-200`}>{selectedDate.getFullYear()} Summary</h3>
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <div className="text-sm font-medium text-gray-500">Total Workouts</div>
-                      <div className="text-xl font-bold text-gray-900">{currentYearWorkouts.length}</div>
+                      <div className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'} transition-colors duration-200`}>Total Workouts</div>
+                      <div className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>{currentYearWorkouts.length}</div>
                     </div>
                     <div>
-                      <div className="text-sm font-medium text-gray-500">Total Distance</div>
-                      <div className="text-xl font-bold text-teal-600">{formatToKm(totalDistance)}</div>
+                      <div className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'} transition-colors duration-200`}>Total Distance</div>
+                      <div className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>{formatToKm(totalDistance)}</div>
                     </div>
                     <div>
-                      <div className="text-sm font-medium text-gray-500">Total Time</div>
-                      <div className="text-xl font-bold text-gray-900">{formatDuration(totalTime)}</div>
+                      <div className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'} transition-colors duration-200`}>Total Time</div>
+                      <div className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>{formatDuration(totalTime)}</div>
                     </div>
                     <div>
-                      <div className="text-sm font-medium text-gray-500">Days with Workouts</div>
-                      <div className="text-xl font-bold text-gray-900">{daysWithWorkouts}</div>
+                      <div className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'} transition-colors duration-200`}>Days with Workouts</div>
+                      <div className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>{daysWithWorkouts}</div>
                     </div>
                     <div>
-                      <div className="text-sm font-medium text-gray-500">Days without Workouts</div>
-                      <div className="text-xl font-bold text-gray-900">{daysInYear - daysWithWorkouts}</div>
+                      <div className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'} transition-colors duration-200`}>Days without Workouts</div>
+                      <div className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>{daysInYear - daysWithWorkouts}</div>
                     </div>
                     <div>
-                      <div className="text-sm font-medium text-gray-500">Avg Distance/Workout</div>
-                      <div className="text-xl font-bold text-gray-900">{formatToKm(avgDistance)}</div>
+                      <div className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'} transition-colors duration-200`}>Avg Distance/Workout</div>
+                      <div className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>{formatToKm(avgDistance)}</div>
                     </div>
                     <div>
-                      <div className="text-sm font-medium text-gray-500">Avg Time/Workout</div>
-                      <div className="text-xl font-bold text-gray-900">{formatDuration(avgTime)}</div>
+                      <div className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'} transition-colors duration-200`}>Avg Time/Workout</div>
+                      <div className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>
+                        {formatDuration(avgTime)}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Monthly Distance Chart */}
-              <div className="col-span-8 bg-white rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Monthly Swimming Distance</h3>
+              <div className={`col-span-8 ${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-sm p-6 transition-colors duration-200`}>
+                <h3 className={`text-lg font-medium ${isDark ? 'text-white' : 'text-gray-900'} mb-4 transition-colors duration-200`}>Monthly Swimming Distance</h3>
                 <div className="h-[300px]">
                   <YearSummary 
                     workouts={currentYearWorkouts} 
                     poolType={poolType} 
-                    year={currentDate.getFullYear()} 
+                    year={selectedDate.getFullYear()} 
                     showStatsOnly={false}
+                    isDark={isDark}
                   />
                 </div>
               </div>
@@ -1133,64 +1142,66 @@ export default function CalendarPage() {
 
       default: { // month view
         const monthWorkouts = Object.values(workouts).flat();
-        const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
-        const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-        const weeksInMonth = Math.ceil((firstDayOfMonth + new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate()) / 7);
+        const firstDayOfMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1).getDay();
+        const monthStart = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
+        const weeksInMonth = Math.ceil((firstDayOfMonth + new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0).getDate()) / 7);
 
         return (
           <div className="space-y-6">
             {/* Month Navigation */}
-            <div className="flex items-center justify-between bg-white rounded-lg shadow-sm p-4 w-fit mx-auto">
+            <div className={`flex items-center justify-between ${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-sm p-4 w-fit mx-auto transition-colors duration-200`}>
               <button
                 onClick={goToPreviousMonth}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                className={`p-2 ${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} rounded-full transition-colors duration-200`}
               >
-                <FaArrowLeft className="h-5 w-5 text-gray-600" />
+                <FaArrowLeft className={`h-5 w-5 ${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`} />
               </button>
-              <h2 className="text-xl font-semibold text-gray-900 mx-4">
-                {currentDate.toLocaleDateString('default', { month: 'long', year: 'numeric' })}
+              <h2 className={`text-xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'} mx-4 transition-colors duration-200`}>
+                {selectedDate.toLocaleDateString('default', { month: 'long', year: 'numeric' })}
               </h2>
               <button
                 onClick={goToNextMonth}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                className={`p-2 ${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} rounded-full transition-colors duration-200`}
               >
-                <FaArrowRight className="h-5 w-5 text-gray-600" />
+                <FaArrowRight className={`h-5 w-5 ${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`} />
               </button>
             </div>
 
             {/* Calendar Grid with Weekly Summaries */}
             <div className="grid grid-cols-12 gap-4">
               {/* Main Calendar */}
-              <div className="col-span-9 bg-white rounded-lg shadow overflow-hidden">
+              <div className={`col-span-9 ${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow overflow-hidden transition-colors duration-200`}>
                 {/* Day Headers */}
-                <div className="grid grid-cols-7 gap-px bg-gray-200 border-b">
+                <div className={`grid grid-cols-7 gap-px ${isDark ? 'bg-gray-700' : 'bg-gray-200'} border-b ${isDark ? 'border-gray-700' : 'border-gray-200'} transition-colors duration-200`}>
                   {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
-                    <div key={day} className="bg-gray-50 py-2 text-center text-sm font-semibold text-gray-700">
+                    <div key={day} className={`${isDark ? 'bg-gray-800' : 'bg-gray-50'} py-2 text-center text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'} transition-colors duration-200`}>
                       {day}
                     </div>
                   ))}
                 </div>
 
                 {/* Calendar Days */}
-                <div className="grid grid-cols-7 gap-px bg-gray-200">
+                <div className={`grid grid-cols-7 gap-px ${isDark ? 'bg-gray-700' : 'bg-gray-200'} transition-colors duration-200`}>
                   {Array.from({ length: weeksInMonth * 7 }).map((_, index) => {
                     const dayNumber = index - firstDayOfMonth + 1;
-                    const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), dayNumber);
-                    const isCurrentMonth = date.getMonth() === currentDate.getMonth();
+                    const date = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), dayNumber);
+                    const isCurrentMonth = date.getMonth() === selectedDate.getMonth();
                     const dateString = formatDateString(date);
                     const dayWorkouts = workouts[dateString] || [];
 
                     return (
                       <div
                         key={index}
-                        className={`bg-white min-h-[120px] p-2 flex flex-col relative group ${
-                          isCurrentMonth ? 'hover:bg-gray-50' : 'bg-gray-50/50'
+                        className={`${isDark ? 'bg-gray-800' : 'bg-white'} min-h-[120px] p-2 flex flex-col relative group ${
+                          isCurrentMonth ? 'hover:bg-gray-700' : 'bg-gray-50/50'
                         } ${isToday(date) ? 'ring-2 ring-teal-500' : ''}`}
                       >
                         <div className="flex justify-between items-center mb-1">
                           <div className={`font-medium text-sm ${
-                            isCurrentMonth ? 'text-gray-700' : 'text-gray-400'
-                          } ${isToday(date) ? 'text-teal-600' : ''}`}>
+                            isCurrentMonth 
+                              ? isDark ? 'text-gray-300' : 'text-gray-700'
+                              : isDark ? 'text-gray-500' : 'text-gray-400'
+                          } ${isToday(date) ? isDark ? 'text-teal-400' : 'text-teal-600' : ''} transition-colors duration-200`}>
                             {date.getDate()}
                           </div>
                           {/* Add Workout Button - Only visible on hover */}
@@ -1225,14 +1236,10 @@ export default function CalendarPage() {
                         {dayWorkouts.length > 0 && (
                           <div className="flex-1 flex flex-col space-y-1">
                             <div className="flex flex-wrap gap-1">
-                              <span className={`inline-flex items-center px-1.5 py-0.5 text-xs font-medium ${
-                                isCurrentMonth ? 'text-teal-100 bg-teal-600' : 'text-teal-100 bg-teal-500'
-                              } rounded-full`}>
+                              <span className={`inline-flex items-center px-1.5 py-0.5 text-xs font-medium text-teal-100 ${isDark ? 'bg-teal-600' : 'bg-teal-500'} rounded-full transition-colors duration-200`}>
                                 {dayWorkouts.length}
                               </span>
-                              <span className={`inline-flex items-center px-1.5 py-0.5 text-xs font-medium ${
-                                isCurrentMonth ? 'text-teal-100 bg-teal-500' : 'text-teal-100 bg-teal-400'
-                              } rounded-full`}>
+                              <span className={`inline-flex items-center px-1.5 py-0.5 text-xs font-medium text-teal-100 ${isDark ? 'bg-teal-500' : 'bg-teal-400'} rounded-full transition-colors duration-200`}>
                                 {formatToKm(dayWorkouts.reduce((total, w) => total + w.summary.totalDistance, 0))}
                               </span>
                             </div>
@@ -1245,13 +1252,13 @@ export default function CalendarPage() {
                                     e.stopPropagation();
                                     setSelectedWorkout({ ...workout, date: dateString });
                                   }}
-                                  className="text-xs bg-gray-50 rounded p-1.5 cursor-pointer hover:bg-gray-100"
+                                  className={`text-xs ${isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-50 hover:bg-gray-100'} rounded p-1.5 cursor-pointer transition-colors duration-200`}
                                 >
                                   <div className="flex items-center justify-between">
-                                    <span className="text-gray-600">
+                                    <span className={`${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>
                                       {formatToKm(workout.summary.totalDistance)}
                                     </span>
-                                    <div className="flex items-center text-gray-500">
+                                    <div className={`flex items-center ${isDark ? 'text-gray-400' : 'text-gray-500'} transition-colors duration-200`}>
                                       <FaClock className="h-3 w-3 mr-0.5" />
                                       {formatDuration(getTotalDuration(workout))}
                                     </div>
@@ -1269,7 +1276,7 @@ export default function CalendarPage() {
 
               {/* Weekly Summaries */}
               <div className="col-span-3 space-y-4">
-                <div className="text-base font-bold text-gray-900 border-b border-teal-100 pb-1 px-3">Weekly Summary</div>
+                <div className={`text-base font-bold ${isDark ? 'text-white' : 'text-gray-900'} border-b ${isDark ? 'border-gray-700' : 'border-teal-100'} pb-1 px-3 transition-colors duration-200`}>Weekly Summary</div>
                 {Array.from({ length: weeksInMonth }).map((_, weekIndex) => {
                   const weekStart = new Date(monthStart);
                   weekStart.setDate(weekStart.getDate() - firstDayOfMonth + (weekIndex * 7));
@@ -1281,30 +1288,30 @@ export default function CalendarPage() {
                   const avgTime = weekWorkouts.length > 0 ? totalTime / weekWorkouts.length : 0;
 
                   return (
-                    <div key={weekIndex} className="bg-white rounded-lg shadow-sm p-3">
-                      <div className="text-base font-bold text-gray-900 mb-2">
+                    <div key={weekIndex} className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-sm p-3 transition-colors duration-200`}>
+                      <div className={`text-base font-bold ${isDark ? 'text-white' : 'text-gray-900'} mb-2 transition-colors duration-200`}>
                         Week {weekIndex + 1}
                       </div>
                       <div className="space-y-1.5 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Workouts:</span>
-                          <span className="font-medium text-teal-600">{weekWorkouts.length || '0'}</span>
+                          <span className={`${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>Workouts:</span>
+                          <span className={`font-medium ${isDark ? 'text-teal-400' : 'text-teal-600'} transition-colors duration-200`}>{weekWorkouts.length || '0'}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Distance:</span>
-                          <span className="font-medium text-teal-600">{weekWorkouts.length ? formatToKm(totalDistance) : 'N/A'}</span>
+                          <span className={`${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>Distance:</span>
+                          <span className={`font-medium ${isDark ? 'text-teal-400' : 'text-teal-600'} transition-colors duration-200`}>{weekWorkouts.length ? formatToKm(totalDistance) : 'N/A'}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Time:</span>
-                          <span className="font-medium text-teal-600">{weekWorkouts.length ? formatDuration(totalTime) : 'N/A'}</span>
+                          <span className={`${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>Time:</span>
+                          <span className={`font-medium ${isDark ? 'text-teal-400' : 'text-teal-600'} transition-colors duration-200`}>{weekWorkouts.length ? formatDuration(totalTime) : 'N/A'}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Avg Distance:</span>
-                          <span className="font-medium text-teal-600">{weekWorkouts.length ? formatToKm(avgDistance) : 'N/A'}</span>
+                          <span className={`${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>Avg Distance:</span>
+                          <span className={`font-medium ${isDark ? 'text-teal-400' : 'text-teal-600'} transition-colors duration-200`}>{weekWorkouts.length ? formatToKm(avgDistance) : 'N/A'}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Avg Time:</span>
-                          <span className="font-medium text-teal-600">{weekWorkouts.length ? formatDuration(avgTime) : 'N/A'}</span>
+                          <span className={`${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>Avg Time:</span>
+                          <span className={`font-medium ${isDark ? 'text-teal-400' : 'text-teal-600'} transition-colors duration-200`}>{weekWorkouts.length ? formatDuration(avgTime) : 'N/A'}</span>
                         </div>
                       </div>
                     </div>
@@ -1314,36 +1321,36 @@ export default function CalendarPage() {
             </div>
 
             {/* Month Summary */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                {currentDate.toLocaleDateString('default', { month: 'long' })} Summary
+            <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-sm p-6 transition-colors duration-200`}>
+              <h3 className={`text-lg font-medium ${isDark ? 'text-white' : 'text-gray-900'} mb-4 transition-colors duration-200`}>
+                {selectedDate.toLocaleDateString('default', { month: 'long' })} Summary
               </h3>
               <div className="grid grid-cols-5 gap-6">
                 <div>
-                  <div className="text-sm font-medium text-gray-500 mb-2">Total Workouts</div>
-                  <div className="text-xl font-bold text-gray-900">{monthWorkouts.length}</div>
+                  <div className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'} mb-2 transition-colors duration-200`}>Total Workouts</div>
+                  <div className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>{monthWorkouts.length}</div>
                 </div>
                 <div>
-                  <div className="text-sm font-medium text-gray-500 mb-2">Total Distance</div>
-                  <div className="text-xl font-bold text-teal-600">
+                  <div className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'} mb-2 transition-colors duration-200`}>Total Distance</div>
+                  <div className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>
                     {formatToKm(monthWorkouts.reduce((sum, w) => sum + w.summary.totalDistance, 0))}
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm font-medium text-gray-500 mb-2">Total Time</div>
-                  <div className="text-xl font-bold text-gray-900">
+                  <div className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'} mb-2 transition-colors duration-200`}>Total Time</div>
+                  <div className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>
                     {formatDuration(monthWorkouts.reduce((sum, w) => sum + getTotalDuration(w), 0))}
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm font-medium text-gray-500 mb-2">Avg Distance/Workout</div>
-                  <div className="text-xl font-bold text-gray-900">
+                  <div className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'} mb-2 transition-colors duration-200`}>Avg Distance/Workout</div>
+                  <div className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>
                     {monthWorkouts.length ? formatToKm(monthWorkouts.reduce((sum, w) => sum + w.summary.totalDistance, 0) / monthWorkouts.length) : 'N/A'}
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm font-medium text-gray-500 mb-2">Avg Time/Workout</div>
-                  <div className="text-xl font-bold text-gray-900">
+                  <div className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'} mb-2 transition-colors duration-200`}>Avg Time/Workout</div>
+                  <div className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>
                     {monthWorkouts.length 
                       ? formatDuration(monthWorkouts.reduce((sum, w) => sum + getTotalDuration(w), 0) / monthWorkouts.length)
                       : 'N/A'
@@ -1359,35 +1366,40 @@ export default function CalendarPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
+    <div className={`min-h-screen ${isDark ? 'bg-gray-900' : 'bg-gray-50'} flex flex-col transition-colors duration-200`}>
+      {/* Header */}
+      <header className={`${isDark ? 'bg-gray-800' : 'bg-white'} shadow-sm transition-colors duration-200`}>
         <nav className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center hover:text-teal-500 transition-colors">
             <FaSwimmer className="h-8 w-8 text-teal-500" />
-            <span className="ml-2 text-xl font-semibold text-gray-900">SwimTracker</span>
+            <span className={`ml-2 text-xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>SwimTracker</span>
           </Link>
           <div className="flex items-center space-x-6">
-            <Link href="/" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center">
+            <ThemeToggle />
+            <Link href="/" className={`${isDark ? 'text-gray-300 hover:text-teal-400' : 'text-gray-700 hover:text-teal-500'} transition-colors flex items-center`}>
               <FaHome className="h-5 w-5 mr-2" />
               Home
             </Link>
-            <Link href="/history" className="text-teal-500 flex items-center">
+            <Link href="/history" className={`${isDark ? 'text-teal-400' : 'text-teal-500'} transition-colors flex items-center`}>
               <FaCalendarAlt className="h-5 w-5 mr-2" />
               Calendar
             </Link>
-            <Link href="/dashboard" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center">
+            <Link href="/dashboard" className={`${isDark ? 'text-gray-300 hover:text-teal-400' : 'text-gray-700 hover:text-teal-500'} transition-colors flex items-center`}>
               <MdDashboard className="h-5 w-5 mr-2" />
               Dashboard
             </Link>
-            <Link href="/insights" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center">
+            <Link href="/insights" className={`${isDark ? 'text-gray-300 hover:text-teal-400' : 'text-gray-700 hover:text-teal-500'} transition-colors flex items-center`}>
               <FaChartLine className="h-5 w-5 mr-2" />
               Insights
             </Link>
-            <Link href="/profile" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center">
+            <Link href="/profile" className={`${isDark ? 'text-gray-300 hover:text-teal-400' : 'text-gray-700 hover:text-teal-500'} transition-colors flex items-center`}>
               <MdPerson className="h-5 w-5 mr-2" />
               Profile
             </Link>
-            <Link href="/logout" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center">
+            <Link 
+              href="/logout" 
+              className={`${isDark ? 'text-gray-300 hover:text-teal-400' : 'text-gray-700 hover:text-teal-500'} transition-colors flex items-center`}
+            >
               <FaSignOutAlt className="h-5 w-5 mr-2" />
               Log Out
             </Link>
@@ -1395,30 +1407,39 @@ export default function CalendarPage() {
         </nav>
       </header>
 
-      <main className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className={`flex-1 max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-8 ${isDark ? 'bg-gray-900' : 'bg-gray-50'} transition-colors duration-200`}>
+        <div className="mb-8">
+          <h1 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>Calendar</h1>
+          <p className={`${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>View and manage your swimming workouts</p>
+        </div>
+
         {/* View selection buttons */}
         <div className="flex justify-between items-center mb-8">
           <div className="flex space-x-4">
             <button 
               onClick={() => {
-                setCurrentDate(new Date());
-                setCurrentView('today');
+                setSelectedDate(new Date());
+                setView('today');
               }}
-              className={`px-4 py-2 rounded-md ${
-                currentView === 'today' ? 'bg-teal-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
+              className={`px-4 py-2 rounded-md transition-colors duration-200 ${
+                view === 'today' 
+                  ? 'bg-teal-500 text-white' 
+                  : `${isDark ? 'bg-gray-800 text-gray-300' : 'bg-white text-gray-700'} hover:bg-gray-700`
               }`}
             >
               Today
             </button>
-            {(['day', 'week', 'month', 'year'] as const).map((view) => (
+            {(['day', 'week', 'month', 'year'] as const).map((viewOption) => (
               <button 
-                key={view}
-                onClick={() => setCurrentView(view)}
-                className={`px-4 py-2 rounded-md ${
-                  currentView === view ? 'bg-teal-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
+                key={viewOption}
+                onClick={() => setView(viewOption)}
+                className={`px-4 py-2 rounded-md transition-colors duration-200 ${
+                  view === viewOption 
+                    ? 'bg-teal-500 text-white' 
+                    : `${isDark ? 'bg-gray-800 text-gray-300' : 'bg-white text-gray-700'} hover:bg-gray-700`
                 }`}
               >
-                {view.charAt(0).toUpperCase() + view.slice(1)}
+                {viewOption.charAt(0).toUpperCase() + viewOption.slice(1)}
               </button>
             ))}
           </div>
@@ -1441,4 +1462,6 @@ export default function CalendarPage() {
       </main>
     </div>
   );
-} 
+};
+
+export default HistoryPage; 

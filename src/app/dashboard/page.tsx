@@ -154,50 +154,50 @@ const DashboardPage: React.FC = () => {
 
         {/* Current Month Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow p-6 transition-colors duration-200`}>
             <div className="flex items-center">
-              <div className="p-3 bg-teal-100 rounded-full">
-                <FaSwimmer className="h-6 w-6 text-teal-600" />
+              <div className={`p-3 ${isDark ? 'bg-teal-900/30' : 'bg-teal-100'} rounded-full transition-colors duration-200`}>
+                <FaSwimmer className={`h-6 w-6 ${isDark ? 'text-teal-400' : 'text-teal-600'}`} />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Workouts</p>
-                <p className="text-2xl font-bold text-gray-900">{currentMonthStats.totalWorkouts}</p>
+                <p className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>Total Workouts</p>
+                <p className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>{currentMonthStats.totalWorkouts}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow p-6 transition-colors duration-200`}>
             <div className="flex items-center">
-              <div className="p-3 bg-blue-100 rounded-full">
-                <FaTrophy className="h-6 w-6 text-blue-600" />
+              <div className={`p-3 ${isDark ? 'bg-blue-900/30' : 'bg-blue-100'} rounded-full transition-colors duration-200`}>
+                <FaTrophy className={`h-6 w-6 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Distance</p>
-                <p className="text-2xl font-bold text-gray-900">{formatToKm(currentMonthStats.totalDistance)}</p>
+                <p className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>Total Distance</p>
+                <p className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>{formatToKm(currentMonthStats.totalDistance)}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow p-6 transition-colors duration-200`}>
             <div className="flex items-center">
-              <div className="p-3 bg-purple-100 rounded-full">
-                <FaClock className="h-6 w-6 text-purple-600" />
+              <div className={`p-3 ${isDark ? 'bg-purple-900/30' : 'bg-purple-100'} rounded-full transition-colors duration-200`}>
+                <FaClock className={`h-6 w-6 ${isDark ? 'text-purple-400' : 'text-purple-600'}`} />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Time</p>
-                <p className="text-2xl font-bold text-gray-900">{formatDuration(currentMonthStats.totalDuration)}</p>
+                <p className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>Total Time</p>
+                <p className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>{formatDuration(currentMonthStats.totalDuration)}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow p-6 transition-colors duration-200`}>
             <div className="flex items-center">
-              <div className="p-3 bg-orange-100 rounded-full">
-                <FaFire className="h-6 w-6 text-orange-600" />
+              <div className={`p-3 ${isDark ? 'bg-orange-900/30' : 'bg-orange-100'} rounded-full transition-colors duration-200`}>
+                <FaFire className={`h-6 w-6 ${isDark ? 'text-orange-400' : 'text-orange-600'}`} />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Fastest Pace</p>
-                <p className="text-2xl font-bold text-gray-900">{Math.round(currentMonthStats.fastestPace)}min/km</p>
+                <p className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>Fastest Pace</p>
+                <p className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>{Math.round(currentMonthStats.fastestPace)}min/km</p>
               </div>
             </div>
           </div>
@@ -205,37 +205,37 @@ const DashboardPage: React.FC = () => {
 
         {/* Detailed Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Performance Metrics</h2>
+          <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow p-6 transition-colors duration-200`}>
+            <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'} mb-4 transition-colors duration-200`}>Performance Metrics</h2>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-gray-600">Average Distance per Workout</span>
-                <span className="font-medium text-gray-900">{formatToKm(currentMonthStats.averageDistance)}</span>
+                <span className={`${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>Average Distance per Workout</span>
+                <span className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>{formatToKm(currentMonthStats.averageDistance)}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600">Average Time per Workout</span>
-                <span className="font-medium text-gray-900">{formatDuration(currentMonthStats.averageDuration)}</span>
+                <span className={`${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>Average Time per Workout</span>
+                <span className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>{formatDuration(currentMonthStats.averageDuration)}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600">Longest Workout</span>
-                <span className="font-medium text-gray-900">{formatToKm(currentMonthStats.longestWorkout)}</span>
+                <span className={`${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>Longest Workout</span>
+                <span className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>{formatToKm(currentMonthStats.longestWorkout)}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600">Workouts This Month</span>
-                <span className="font-medium text-gray-900">{currentMonthStats.totalWorkouts}</span>
+                <span className={`${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>Workouts This Month</span>
+                <span className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>{currentMonthStats.totalWorkouts}</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Monthly Goals</h2>
+          <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow p-6 transition-colors duration-200`}>
+            <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'} mb-4 transition-colors duration-200`}>Monthly Goals</h2>
             <div className="space-y-4">
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-600">Distance Goal (100km)</span>
-                  <span className="font-medium text-gray-900">{Math.round((currentMonthStats.totalDistance / 100000) * 100)}%</span>
+                  <span className={`${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>Distance Goal (100km)</span>
+                  <span className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>{Math.round((currentMonthStats.totalDistance / 100000) * 100)}%</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className={`w-full ${isDark ? 'bg-gray-700' : 'bg-gray-200'} rounded-full h-2 transition-colors duration-200`}>
                   <div 
                     className="bg-teal-500 rounded-full h-2" 
                     style={{ width: `${Math.min(100, (currentMonthStats.totalDistance / 100000) * 100)}%` }}
@@ -244,10 +244,10 @@ const DashboardPage: React.FC = () => {
               </div>
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-600">Workout Goal (20 workouts)</span>
-                  <span className="font-medium text-gray-900">{Math.round((currentMonthStats.totalWorkouts / 20) * 100)}%</span>
+                  <span className={`${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>Workout Goal (20 workouts)</span>
+                  <span className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>{Math.round((currentMonthStats.totalWorkouts / 20) * 100)}%</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className={`w-full ${isDark ? 'bg-gray-700' : 'bg-gray-200'} rounded-full h-2 transition-colors duration-200`}>
                   <div 
                     className="bg-blue-500 rounded-full h-2" 
                     style={{ width: `${Math.min(100, (currentMonthStats.totalWorkouts / 20) * 100)}%` }}
@@ -256,10 +256,10 @@ const DashboardPage: React.FC = () => {
               </div>
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-600">Time Goal (40 hours)</span>
-                  <span className="font-medium text-gray-900">{Math.round((currentMonthStats.totalDuration / 2400) * 100)}%</span>
+                  <span className={`${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>Time Goal (40 hours)</span>
+                  <span className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>{Math.round((currentMonthStats.totalDuration / 2400) * 100)}%</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className={`w-full ${isDark ? 'bg-gray-700' : 'bg-gray-200'} rounded-full h-2 transition-colors duration-200`}>
                   <div 
                     className="bg-purple-500 rounded-full h-2" 
                     style={{ width: `${Math.min(100, (currentMonthStats.totalDuration / 2400) * 100)}%` }}
