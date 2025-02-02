@@ -7,6 +7,7 @@ import { MdDashboard, MdPerson } from 'react-icons/md';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import ThemeToggle from '@/components/ThemeToggle';
+import { useTheme } from 'next-themes';
 
 // Define types for our workout data
 interface WorkoutSummary {
@@ -42,6 +43,8 @@ interface ParsedSet {
 }
 
 export default function WriteWorkout() {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   // State for pool type and workout text
   const [poolType, setPoolType] = useState<'SCY' | 'SCM' | 'LCM'>('LCM');
   const [workoutText, setWorkoutText] = useState('');
@@ -553,9 +556,9 @@ export default function WriteWorkout() {
       <header className="bg-white shadow-sm dark:bg-gray-800">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center">
-            <Link href="/" className="flex items-center">
+            <Link href="/" className="flex items-center hover:text-teal-500 transition-colors cursor-pointer">
               <FaSwimmer className="h-8 w-8 text-teal-500" />
-              <span className="ml-2 text-xl font-semibold text-gray-900 dark:text-white">SwimTracker</span>
+              <span className="ml-2 text-xl font-semibold text-gray-900 dark:text-white hover:text-teal-400 transition-colors duration-200">SwimTracker</span>
             </Link>
           </div>
           <div className="flex items-center space-x-6">

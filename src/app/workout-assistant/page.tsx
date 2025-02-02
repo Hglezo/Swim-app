@@ -6,6 +6,7 @@ import { FaSwimmer, FaChartLine, FaSignOutAlt, FaCalendarAlt, FaHome, FaPaperPla
 import { MdDashboard, MdPerson, MdContentCopy, MdTimer } from 'react-icons/md';
 import ToolsDialog from './components/ToolsDialog';
 import ThemeToggle from '@/components/ThemeToggle';
+import { useTheme } from 'next-themes';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -35,6 +36,8 @@ interface Tool {
 }
 
 export default function WorkoutAssistant() {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
@@ -164,8 +167,10 @@ export default function WorkoutAssistant() {
       <header className="bg-white shadow-sm dark:bg-gray-800">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center">
-            <FaSwimmer className="h-8 w-8 text-teal-500" />
-            <span className="ml-2 text-xl font-semibold text-gray-900 dark:text-white">SwimTracker</span>
+            <Link href="/" className="flex items-center hover:text-teal-500 transition-colors cursor-pointer">
+              <FaSwimmer className="h-8 w-8 text-teal-500" />
+              <span className="ml-2 text-xl font-semibold text-gray-900 dark:text-white hover:text-teal-400 transition-colors duration-200">SwimTracker</span>
+            </Link>
           </div>
           <div className="flex items-center space-x-6">
             <Link href="/" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center dark:text-gray-300 dark:hover:text-teal-400">
