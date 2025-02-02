@@ -309,7 +309,7 @@ const ProfilePage: React.FC = () => {
                     onClick={togglePreferencesEdit}
                     className="text-teal-500 hover:text-teal-400 transition-colors"
                   >
-                    <FaCog className="h-5 w-5" />
+                    <FaEdit className="h-5 w-5" />
                   </button>
                 )}
               </div>
@@ -329,9 +329,7 @@ const ProfilePage: React.FC = () => {
                     <option value="miles">Miles</option>
                   </select>
                 ) : (
-                  <p className={`mt-1 ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>
-                    {preferences.distanceUnit === 'kilometers' ? 'Kilometers' : 'Miles'}
-                  </p>
+                  <p className={`mt-1 capitalize ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>{preferences.distanceUnit}</p>
                 )}
               </div>
               <div>
@@ -344,13 +342,30 @@ const ProfilePage: React.FC = () => {
                       isDark ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-gray-900'
                     } shadow-sm focus:border-teal-500 focus:ring-teal-500 py-2 px-3 transition-colors duration-200`}
                   >
-                    <option value="12h">12-hour</option>
                     <option value="24h">24-hour</option>
+                    <option value="12h">12-hour</option>
                   </select>
                 ) : (
                   <p className={`mt-1 ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>
-                    {preferences.timeFormat === '12h' ? '12-hour' : '24-hour'}
+                    {preferences.timeFormat === '24h' ? '24-hour' : '12-hour'}
                   </p>
+                )}
+              </div>
+              <div>
+                <label className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>First Day of Week</label>
+                {isEditingPreferences ? (
+                  <select
+                    value={tempPreferences.weekStart}
+                    onChange={(e) => handlePreferenceChange('weekStart', e.target.value)}
+                    className={`mt-1 block w-full rounded-md border-2 ${
+                      isDark ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-gray-900'
+                    } shadow-sm focus:border-teal-500 focus:ring-teal-500 py-2 px-3 transition-colors duration-200`}
+                  >
+                    <option value="monday">Monday</option>
+                    <option value="sunday">Sunday</option>
+                  </select>
+                ) : (
+                  <p className={`mt-1 capitalize ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>{preferences.weekStart}</p>
                 )}
               </div>
             </div>

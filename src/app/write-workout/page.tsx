@@ -6,6 +6,7 @@ import { FaSwimmer, FaChartLine, FaSignOutAlt, FaCalendarAlt, FaHome, FaMagic } 
 import { MdDashboard, MdPerson } from 'react-icons/md';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
+import ThemeToggle from '@/components/ThemeToggle';
 
 // Define types for our workout data
 interface WorkoutSummary {
@@ -547,40 +548,41 @@ export default function WriteWorkout() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header/Navigation */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-white shadow-sm dark:bg-gray-800">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-            <FaSwimmer className="h-8 w-8 text-teal-500" />
-            <span className="ml-2 text-xl font-semibold text-gray-900">SwimTracker</span>
-          </Link>
+              <FaSwimmer className="h-8 w-8 text-teal-500" />
+              <span className="ml-2 text-xl font-semibold text-gray-900 dark:text-white">SwimTracker</span>
+            </Link>
           </div>
           <div className="flex items-center space-x-6">
-            <Link href="/" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center">
+            <Link href="/" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center dark:text-gray-300 dark:hover:text-teal-400">
               <FaHome className="h-5 w-5 mr-2" />
               Home
             </Link>
-            <Link href="/history" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center">
+            <Link href="/history" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center dark:text-gray-300 dark:hover:text-teal-400">
               <FaCalendarAlt className="h-5 w-5 mr-2" />
               Calendar
             </Link>
-            <Link href="/dashboard" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center">
+            <Link href="/dashboard" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center dark:text-gray-300 dark:hover:text-teal-400">
               <MdDashboard className="h-5 w-5 mr-2" />
               Dashboard
             </Link>
-            <Link href="/insights" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center">
+            <Link href="/insights" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center dark:text-gray-300 dark:hover:text-teal-400">
               <FaChartLine className="h-5 w-5 mr-2" />
               Insights
             </Link>
-            <Link href="/profile" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center">
+            <Link href="/profile" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center dark:text-gray-300 dark:hover:text-teal-400">
               <MdPerson className="h-5 w-5 mr-2" />
               Profile
             </Link>
+            <ThemeToggle />
             <Link 
               href="/logout" 
-              className="text-gray-700 hover:text-teal-500 transition-colors flex items-center"
+              className="text-gray-700 hover:text-teal-500 transition-colors flex items-center dark:text-gray-300 dark:hover:text-teal-400"
             >
               <FaSignOutAlt className="h-5 w-5 mr-2" />
               Log Out
@@ -593,17 +595,17 @@ export default function WriteWorkout() {
         <div className="flex gap-8">
           {/* Left side - Input area */}
           <div className="flex-1">
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow p-6 dark:bg-gray-800">
               {/* Pool Type Selector */}
               <div className="mb-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-3">Select Pool Type</h2>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Select Pool Type</h2>
                 <div className="flex gap-4">
                   <button
                     onClick={() => setPoolType('SCY')}
                     className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                       poolType === 'SCY' 
                         ? 'bg-teal-500 text-white' 
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
                     }`}
                   >
                     Short Course Yards
@@ -613,7 +615,7 @@ export default function WriteWorkout() {
                     className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                       poolType === 'SCM' 
                         ? 'bg-teal-500 text-white' 
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
                     }`}
                   >
                     Short Course Meters
@@ -623,7 +625,7 @@ export default function WriteWorkout() {
                     className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                       poolType === 'LCM' 
                         ? 'bg-teal-500 text-white' 
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
                     }`}
                   >
                     Long Course Meters
@@ -633,14 +635,14 @@ export default function WriteWorkout() {
 
               {/* Intensity System Selector */}
               <div className="mb-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-3">Select Intensity System</h2>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Select Intensity System</h2>
                 <div className="flex gap-4">
                   <button
                     onClick={() => setIntensitySystem('polar')}
                     className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                       intensitySystem === 'polar'
                         ? 'bg-teal-500 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
                     }`}
                   >
                     Polar Zones (Grey, Blue, Green, Orange, Red)
@@ -650,7 +652,7 @@ export default function WriteWorkout() {
                     className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                       intensitySystem === 'international'
                         ? 'bg-teal-500 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
                     }`}
                   >
                     International (Yellow, White, Pink, Red, Blue, Brown, Purple)
@@ -661,14 +663,14 @@ export default function WriteWorkout() {
               {/* Workout Input */}
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <h2 className="text-lg font-semibold text-gray-900">Write Your Workout</h2>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Write Your Workout</h2>
                   <div className="flex gap-2">
                     <button
                       onClick={parseWithGPT}
                       disabled={isParsingWithGPT || !workoutText.trim()}
                       className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors
                         ${isParsingWithGPT || !workoutText.trim()
-                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                          ? 'bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-400 cursor-not-allowed'
                           : 'bg-teal-500 text-white hover:bg-teal-600'}`}
                     >
                       <FaMagic className="h-4 w-4 mr-2" />
@@ -679,14 +681,14 @@ export default function WriteWorkout() {
                       disabled={isSaving || !workoutText.trim()}
                       className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors
                         ${isSaving || !workoutText.trim()
-                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                          ? 'bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-400 cursor-not-allowed'
                           : 'bg-blue-500 text-white hover:bg-blue-600'}`}
                     >
                       {isSaving ? 'Saving...' : 'Save Workout'}
                     </button>
                   </div>
                 </div>
-                <p className="text-sm text-gray-600 mb-4">
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
                   Enter your workout in free format. Use new lines to separate sets.
                   Click "Parse with GPT" to automatically structure your workout.
                 </p>
@@ -704,20 +706,20 @@ Warm up:
 Main Set:
 4x (100 fly + 100 free)
 2x[100 breast]"
-                    className={`w-full rounded-md border ${parseError ? 'border-red-500' : 'border-gray-300'} shadow-sm px-4 py-3 font-mono text-gray-900 focus:ring-teal-500 focus:border-teal-500`}
+                    className="w-full rounded-md border border-gray-300 shadow-sm px-4 py-3 font-mono bg-white text-gray-900 focus:ring-teal-500 focus:border-teal-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
                   />
                   {parseError && (
-                    <div className="text-red-500 text-sm font-medium bg-red-50 p-3 rounded-md">
+                    <div className="text-red-500 text-sm font-medium bg-red-50 dark:bg-red-900/20 p-3 rounded-md">
                       ⚠️ {parseError}
                     </div>
                   )}
                   {gptParseError && (
-                    <div className="text-red-500 text-sm font-medium bg-red-50 p-3 rounded-md">
+                    <div className="text-red-500 text-sm font-medium bg-red-50 dark:bg-red-900/20 p-3 rounded-md">
                       ⚠️ {gptParseError}
                     </div>
                   )}
                   {saveError && (
-                    <div className="text-red-500 text-sm font-medium bg-red-50 p-3 rounded-md mt-2">
+                    <div className="text-red-500 text-sm font-medium bg-red-50 dark:bg-red-900/20 p-3 rounded-md mt-2">
                       ⚠️ {saveError}
                     </div>
                   )}
@@ -729,20 +731,20 @@ Main Set:
           {/* Right side - Summary */}
           <div className="w-80">
             {/* Date Selector */}
-            <div className="bg-white rounded-lg shadow p-6 mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-3">Workout Date</h2>
+            <div className="bg-white rounded-lg shadow p-6 mb-6 dark:bg-gray-800">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Workout Date</h2>
               <div className="space-y-3">
                 <div className="flex gap-2">
                   <div className="flex-1">
                     <DatePicker
                       selected={workoutDate}
                       onChange={(date: Date | null) => date && setWorkoutDate(date)}
-                      className="w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-gray-900 focus:ring-teal-500 focus:border-teal-500"
+                      className="w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-gray-900 focus:ring-teal-500 focus:border-teal-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
                     />
                   </div>
                   <button
                     onClick={() => setWorkoutDate(new Date())}
-                    className="px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-md text-sm font-medium transition-colors"
+                    className="px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-md text-sm font-medium transition-colors dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
                   >
                     Today
                   </button>
@@ -751,26 +753,26 @@ Main Set:
             </div>
 
             {/* Workout Summary */}
-            <div className="bg-white rounded-lg shadow p-6 sticky top-8">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Workout Summary</h2>
+            <div className="bg-white rounded-lg shadow p-6 sticky top-8 dark:bg-gray-800">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Workout Summary</h2>
               
               {/* Total Distance */}
               <div className="mb-6">
-                <h3 className="text-sm font-medium text-gray-700">Total Distance</h3>
-                <p className="text-2xl font-bold text-gray-900">
+                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Total Distance</h3>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
                   {workoutSummary.totalDistance} {poolType === 'SCY' ? 'yards' : 'meters'}
                 </p>
               </div>
 
               {/* Distance by Stroke */}
               <div className="mb-6">
-                <h3 className="text-sm font-medium text-gray-700 mb-3">Distance by Stroke</h3>
+                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Distance by Stroke</h3>
                 <div className="space-y-2">
                   {Object.entries(workoutSummary.strokeDistances).map(([stroke, distance]) => (
                     distance > 0 && (
                       <div key={stroke} className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600 capitalize">{stroke}</span>
-                        <span className="text-sm font-medium text-gray-900">
+                        <span className="text-sm text-gray-600 capitalize dark:text-gray-300">{stroke}</span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">
                           {distance} {poolType === 'SCY' ? 'yards' : 'meters'}
                         </span>
                       </div>
@@ -782,12 +784,12 @@ Main Set:
               {/* Distance by Intensity */}
               {Object.keys(workoutSummary.intensityDistances).length > 0 && (
                 <div className="mb-6">
-                  <h3 className="text-sm font-medium text-gray-700 mb-3">Distance by Intensity</h3>
+                  <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Distance by Intensity</h3>
                   <div className="space-y-2">
                     {Object.entries(workoutSummary.intensityDistances).map(([intensity, distance]) => (
                       <div key={intensity} className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">{intensity}</span>
-                        <span className="text-sm font-medium text-gray-900">
+                        <span className="text-sm text-gray-600 dark:text-gray-300">{intensity}</span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">
                           {distance} {poolType === 'SCY' ? 'yards' : 'meters'}
                         </span>
                       </div>
@@ -797,9 +799,9 @@ Main Set:
               )}
 
               {/* Example Format */}
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <h3 className="text-sm font-medium text-gray-700 mb-2">Format Examples:</h3>
-                <div className="text-xs text-gray-600 space-y-1">
+              <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Format Examples:</h3>
+                <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
                   <p>Stroke Types: drill/dr, kick/k, scull</p>
                   <p>Heart Rate: hr150-hr190 (by 5)</p>
                   <p>Heart Rate by 10: hr24-hr30</p>

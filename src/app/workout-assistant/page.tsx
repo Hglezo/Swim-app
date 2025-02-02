@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { FaSwimmer, FaChartLine, FaSignOutAlt, FaCalendarAlt, FaHome, FaPaperPlane, FaLightbulb, FaSave, FaCalculator, FaHeart, FaVideo } from 'react-icons/fa';
 import { MdDashboard, MdPerson, MdContentCopy, MdTimer } from 'react-icons/md';
 import ToolsDialog from './components/ToolsDialog';
+import ThemeToggle from '@/components/ThemeToggle';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -160,36 +161,37 @@ export default function WorkoutAssistant() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header/Navigation */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-white shadow-sm dark:bg-gray-800">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center">
             <FaSwimmer className="h-8 w-8 text-teal-500" />
-            <span className="ml-2 text-xl font-semibold text-gray-900">SwimTracker</span>
+            <span className="ml-2 text-xl font-semibold text-gray-900 dark:text-white">SwimTracker</span>
           </div>
           <div className="flex items-center space-x-6">
-            <Link href="/" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center">
+            <Link href="/" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center dark:text-gray-300 dark:hover:text-teal-400">
               <FaHome className="h-5 w-5 mr-2" />
               Home
             </Link>
-            <Link href="/history" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center">
+            <Link href="/history" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center dark:text-gray-300 dark:hover:text-teal-400">
               <FaCalendarAlt className="h-5 w-5 mr-2" />
               Calendar
             </Link>
-            <Link href="/dashboard" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center">
+            <Link href="/dashboard" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center dark:text-gray-300 dark:hover:text-teal-400">
               <MdDashboard className="h-5 w-5 mr-2" />
               Dashboard
             </Link>
-            <Link href="/insights" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center">
+            <Link href="/insights" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center dark:text-gray-300 dark:hover:text-teal-400">
               <FaChartLine className="h-5 w-5 mr-2" />
               Insights
             </Link>
-            <Link href="/profile" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center">
+            <Link href="/profile" className="text-gray-700 hover:text-teal-500 transition-colors flex items-center dark:text-gray-300 dark:hover:text-teal-400">
               <MdPerson className="h-5 w-5 mr-2" />
               Profile
             </Link>
+            <ThemeToggle />
             <Link 
               href="/logout" 
-              className="text-gray-700 hover:text-teal-500 transition-colors flex items-center"
+              className="text-gray-700 hover:text-teal-500 transition-colors flex items-center dark:text-gray-300 dark:hover:text-teal-400"
             >
               <FaSignOutAlt className="h-5 w-5 mr-2" />
               Log Out
@@ -198,25 +200,25 @@ export default function WorkoutAssistant() {
         </nav>
       </header>
 
-      <div className="flex-1 bg-gray-50">
+      <div className="flex-1 bg-gray-50 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Workout Templates Section */}
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Workout Templates</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Workout Templates</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {workoutTemplates.map((template, index) => (
-                <div key={index} className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{template.title}</h3>
-                  <p className="text-gray-600 mb-4">{template.description}</p>
+                <div key={index} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{template.title}</h3>
+                  <p className="text-gray-600 dark:text-gray-300 mb-4">{template.description}</p>
                   <div className="flex flex-wrap gap-2 mb-4">
-                    <span className="px-2 py-1 bg-teal-100 text-teal-800 rounded-full text-sm">
+                    <span className="px-2 py-1 bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-100 rounded-full text-sm">
                       {template.duration}
                     </span>
-                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                    <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 rounded-full text-sm">
                       {template.difficulty}
                     </span>
                     {template.focus.map((focus, i) => (
-                      <span key={i} className="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">
+                      <span key={i} className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-full text-sm">
                         {focus}
                       </span>
                     ))}
@@ -235,20 +237,20 @@ export default function WorkoutAssistant() {
 
           {/* Tools Section */}
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Training Tools</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Training Tools</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {tools.map((tool, index) => (
-                <div key={index} className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
+                <div key={index} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
                   <div className="flex items-center mb-4">
-                    <div className="text-teal-500 mr-3">
+                    <div className="text-teal-500">
                       {tool.icon}
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900">{tool.title}</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white ml-3">{tool.title}</h3>
                   </div>
-                  <p className="text-gray-600 mb-4">{tool.description}</p>
+                  <p className="text-gray-600 dark:text-gray-300 mb-4">{tool.description}</p>
                   <button
                     onClick={() => handleToolClick(tool)}
-                    className="w-full bg-gray-100 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors"
+                    className="w-full bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600 transition-colors flex items-center justify-center"
                   >
                     Open Tool
                   </button>
@@ -261,16 +263,16 @@ export default function WorkoutAssistant() {
             {/* Suggestion Cards */}
             <div className="lg:col-span-1 space-y-6">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Quick Suggestions</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Quick Suggestions</h2>
                 {suggestionCards.map((card, index) => (
-                  <div key={index} className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow mb-6">
+                  <div key={index} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow mb-6">
                     <div className="flex items-center mb-4">
                       <FaLightbulb className="h-6 w-6 text-teal-500 mr-3" />
-                      <h3 className="text-lg font-semibold text-gray-900">{card.title}</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{card.title}</h3>
                     </div>
-                    <p className="text-gray-600 mb-4">{card.description}</p>
-                    <div className="bg-gray-50 p-3 rounded-md">
-                      <p className="text-sm text-gray-500 italic">Example: "{card.example}"</p>
+                    <p className="text-gray-600 dark:text-gray-300 mb-4">{card.description}</p>
+                    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                      <p className="text-sm text-gray-600 dark:text-gray-300 italic">"{card.example}"</p>
                     </div>
                   </div>
                 ))}
@@ -279,11 +281,11 @@ export default function WorkoutAssistant() {
               {/* Saved Conversations */}
               {savedConversations.length > 0 && (
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Saved Conversations</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Saved Conversations</h2>
                   <div className="space-y-4">
                     {savedConversations.map((conv, index) => (
-                      <div key={index} className="bg-white rounded-lg shadow-sm p-4">
-                        <h3 className="font-medium text-gray-900">{conv.title}</h3>
+                      <div key={index} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
+                        <h3 className="font-medium text-gray-900 dark:text-white">{conv.title}</h3>
                         <p className="text-sm text-gray-500">
                           {conv.messages.length} messages
                         </p>
@@ -295,11 +297,11 @@ export default function WorkoutAssistant() {
             </div>
 
             {/* Chat Interface */}
-            <div className="lg:col-span-2 bg-white rounded-lg shadow-sm">
+            <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
               <div className="h-[600px] flex flex-col">
                 {/* Chat Header */}
                 <div className="px-6 py-4 border-b flex justify-between items-center">
-                  <h2 className="text-lg font-semibold text-gray-900">Workout Assistant</h2>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Workout Assistant</h2>
                   <button
                     onClick={saveConversation}
                     className="text-teal-500 hover:text-teal-600 transition-colors flex items-center"
