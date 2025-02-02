@@ -28,7 +28,6 @@ export default function Home() {
             <span className={`ml-2 text-xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>SwimTracker</span>
           </div>
           <div className="flex items-center space-x-6">
-            <ThemeToggle />
             <Link href="/" className={`${isDark ? 'text-teal-400' : 'text-teal-500'} transition-colors flex items-center`}>
               <FaHome className="h-5 w-5 mr-2" />
               Home
@@ -49,6 +48,7 @@ export default function Home() {
               <MdPerson className="h-5 w-5 mr-2" />
               Profile
             </Link>
+            <ThemeToggle />
             <Link 
               href="/logout" 
               className={`${isDark ? 'text-gray-300 hover:text-teal-400' : 'text-gray-700 hover:text-teal-500'} transition-colors flex items-center`}

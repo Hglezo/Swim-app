@@ -284,22 +284,30 @@ const WorkoutDetailModal = ({
                   <span className="ml-2 text-xs text-gray-500">Updating summary...</span>
                 )}
               </h4>
-              <div className={`rounded-lg ${isEditing ? 'bg-white p-1' : 'bg-gray-50 p-4'} transition-colors duration-200`}>
+              <div className={`rounded-lg ${isEditing ? (isDark ? 'bg-gray-700' : 'bg-white') : (isDark ? 'bg-gray-700' : 'bg-gray-50')} p-4 transition-colors duration-200`}>
                 {isEditing ? (
                   <textarea
                     value={editedText}
                     onChange={(e) => setEditedText(e.target.value)}
-                    className="w-full h-48 p-3 text-sm font-mono text-gray-800 bg-white border-2 border-teal-500 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-y"
+                    className={`w-full h-48 p-3 text-sm font-mono rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-y ${
+                      isDark 
+                        ? 'bg-gray-800 text-gray-100 border-2 border-gray-600' 
+                        : 'text-gray-800 bg-white border-2 border-teal-500'
+                    }`}
                     placeholder="Enter your workout details here..."
                   />
                 ) : (
-                  <pre className="text-sm text-gray-600 whitespace-pre-wrap font-mono">
+                  <pre className={`text-sm whitespace-pre-wrap font-mono ${
+                    isDark ? 'text-gray-300' : 'text-gray-600'
+                  }`}>
                     {workout.text}
                   </pre>
                 )}
               </div>
               {parseError && (
-                <div className="mt-2 text-red-500 text-sm font-medium bg-red-50 p-3 rounded-md">
+                <div className={`mt-2 text-sm font-medium p-3 rounded-md ${
+                  isDark ? 'text-red-400 bg-red-900/50' : 'text-red-500 bg-red-50'
+                }`}>
                   ⚠️ {parseError}
                 </div>
               )}
@@ -307,9 +315,9 @@ const WorkoutDetailModal = ({
 
             {/* Format Examples */}
             {isEditing && (
-              <div className="mt-6 pt-6 border-t border-gray-200">
+              <div className={`mt-6 pt-6 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
                 <h3 className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} mb-2 transition-colors duration-200`}>Format Examples:</h3>
-                <div className="text-xs text-gray-600 space-y-1">
+                <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'} space-y-1`}>
                   <p>Stroke Types: drill/dr, kick/k, scull</p>
                   <p>Heart Rate: hr150-hr190 (by 5)</p>
                   <p>Heart Rate by 10: hr24-hr30</p>
@@ -318,69 +326,89 @@ const WorkoutDetailModal = ({
                 </div>
               </div>
             )}
-          </div>
 
-          {/* Bottom actions bar with edit and delete buttons */}
-          <div className="mt-6 flex justify-between items-center border-t pt-4">
-            {/* Edit/Save button */}
-            {isEditing ? (
-              <div className="flex items-center space-x-4">
+            {/* Bottom actions bar with edit and delete buttons */}
+            <div className={`mt-6 flex justify-between items-center border-t pt-4 ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
+              {/* Edit/Save button */}
+              {isEditing ? (
+                <div className="flex items-center space-x-4">
+                  <button
+                    onClick={() => {
+                      setIsEditing(false);
+                      setEditedText(workout.text);
+                      setCurrentSummary(workout.summary);
+                      setParseError(null);
+                    }}
+                    className={`flex items-center px-4 py-2 text-sm font-medium ${
+                      isDark 
+                        ? 'text-gray-400 hover:text-gray-300' 
+                        : 'text-gray-600 hover:text-gray-800'
+                    } transition-colors`}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSave}
+                    className={`flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                      isDark 
+                        ? 'bg-teal-600 hover:bg-teal-700 text-white' 
+                        : 'bg-teal-600 hover:bg-teal-700 text-white'
+                    }`}
+                  >
+                    <FaEdit className="h-4 w-4 mr-2" />
+                    Save Changes
+                  </button>
+                </div>
+              ) : (
                 <button
-                  onClick={() => {
-                    setIsEditing(false);
-                    setEditedText(workout.text);
-                    setCurrentSummary(workout.summary);
-                    setParseError(null);
-                  }}
-                  className={`flex items-center px-4 py-2 text-sm font-medium ${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'} transition-colors`}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSave}
-                  className={`flex items-center px-4 py-2 text-sm font-medium ${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-white bg-teal-600 hover:bg-teal-700'} rounded-md transition-colors`}
+                  onClick={() => setIsEditing(true)}
+                  className={`flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                    isDark 
+                      ? 'bg-teal-600 hover:bg-teal-700 text-white' 
+                      : 'bg-teal-600 hover:bg-teal-700 text-white'
+                  }`}
                 >
                   <FaEdit className="h-4 w-4 mr-2" />
-                  Save Changes
+                  Edit Workout
                 </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => setIsEditing(true)}
-                className={`flex items-center px-4 py-2 text-sm font-medium ${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-white bg-teal-600 hover:bg-teal-700'} rounded-md transition-colors`}
-              >
-                <FaEdit className="h-4 w-4 mr-2" />
-                Edit Workout
-              </button>
-            )}
+              )}
 
-            {/* Delete button and confirmation */}
-            {showConfirmDelete ? (
-              <div className="flex items-center space-x-4">
-                <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'} transition-colors duration-200`}>Are you sure?</span>
-                <button
-                  onClick={() => setShowConfirmDelete(false)}
-                  className={`px-4 py-2 text-sm font-medium ${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'} transition-colors`}
-                >
-                  Cancel
-                </button>
+              {/* Delete button and confirmation */}
+              {showConfirmDelete ? (
+                <div className="flex items-center space-x-4">
+                  <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'} transition-colors duration-200`}>Are you sure?</span>
+                  <button
+                    onClick={() => setShowConfirmDelete(false)}
+                    className={`px-4 py-2 text-sm font-medium ${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'} transition-colors`}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleDelete}
+                    className={`flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                      isDark 
+                        ? 'bg-red-600 hover:bg-red-700 text-white' 
+                        : 'bg-red-600 hover:bg-red-700 text-white'
+                    }`}
+                  >
+                    <FaTrash className="h-4 w-4 mr-2" />
+                    Confirm Delete
+                  </button>
+                </div>
+              ) : (
                 <button
                   onClick={handleDelete}
-                  className={`flex items-center px-4 py-2 text-sm font-medium ${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-white bg-red-600 hover:bg-red-700'} rounded-md transition-colors`}
+                  className={`flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                    isDark 
+                      ? 'bg-red-600 hover:bg-red-700 text-white' 
+                      : 'bg-red-600 hover:bg-red-700 text-white'
+                  }`}
                 >
                   <FaTrash className="h-4 w-4 mr-2" />
-                  Confirm Delete
+                  Delete Workout
                 </button>
-              </div>
-            ) : (
-              <button
-                onClick={handleDelete}
-                className={`flex items-center px-4 py-2 text-sm font-medium ${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-white bg-red-600 hover:bg-red-700'} rounded-md transition-colors`}
-              >
-                <FaTrash className="h-4 w-4 mr-2" />
-                Delete Workout
-              </button>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -1375,7 +1403,6 @@ const HistoryPage = () => {
             <span className={`ml-2 text-xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>SwimTracker</span>
           </Link>
           <div className="flex items-center space-x-6">
-            <ThemeToggle />
             <Link href="/" className={`${isDark ? 'text-gray-300 hover:text-teal-400' : 'text-gray-700 hover:text-teal-500'} transition-colors flex items-center`}>
               <FaHome className="h-5 w-5 mr-2" />
               Home
@@ -1396,6 +1423,7 @@ const HistoryPage = () => {
               <MdPerson className="h-5 w-5 mr-2" />
               Profile
             </Link>
+            <ThemeToggle />
             <Link 
               href="/logout" 
               className={`${isDark ? 'text-gray-300 hover:text-teal-400' : 'text-gray-700 hover:text-teal-500'} transition-colors flex items-center`}

@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface UserPreferences {
-  distanceUnit: 'kilometers' | 'miles';
+  distanceUnit: 'meters' | 'yards';
   timeFormat: '24h' | '12h';
   weekStart: 'monday' | 'sunday';
   defaultTheme: 'light' | 'dark' | 'system';
@@ -15,7 +15,7 @@ interface PreferencesContextType {
 }
 
 const defaultPreferences: UserPreferences = {
-  distanceUnit: 'kilometers',
+  distanceUnit: 'meters',
   timeFormat: '24h',
   weekStart: 'monday',
   defaultTheme: 'system'
@@ -30,7 +30,7 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
     // In a real application, this would be an API call to get user preferences
     // For now, we'll use mock data
     const mockUserPreferences = {
-      distanceUnit: 'kilometers',
+      distanceUnit: 'meters',
       timeFormat: '24h',
       weekStart: 'monday',
       defaultTheme: 'system'

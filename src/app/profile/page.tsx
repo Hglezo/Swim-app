@@ -149,7 +149,6 @@ const ProfilePage: React.FC = () => {
             <span className={`ml-2 text-xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>SwimTracker</span>
           </Link>
           <div className="flex items-center space-x-6">
-            <ThemeToggle />
             <Link href="/" className={`${isDark ? 'text-gray-300 hover:text-teal-400' : 'text-gray-700 hover:text-teal-500'} transition-colors flex items-center`}>
               <FaHome className="h-5 w-5 mr-2" />
               Home
@@ -170,6 +169,7 @@ const ProfilePage: React.FC = () => {
               <MdPerson className="h-5 w-5 mr-2" />
               Profile
             </Link>
+            <ThemeToggle />
             <Link 
               href="/logout" 
               className={`${isDark ? 'text-gray-300 hover:text-teal-400' : 'text-gray-700 hover:text-teal-500'} transition-colors flex items-center`}
@@ -191,8 +191,8 @@ const ProfilePage: React.FC = () => {
           {/* Profile Information */}
           <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow p-6 transition-colors duration-200`}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>Personal Information</h2>
-              <div className="flex space-x-2">
+              <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200 mr-4`}>Personal Information</h2>
+              <div className="flex space-x-2 ml-4">
                 {isEditing ? (
                   <>
                     <button 
@@ -327,8 +327,8 @@ const ProfilePage: React.FC = () => {
                       isDark ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-gray-900'
                     } shadow-sm focus:border-teal-500 focus:ring-teal-500 py-2 px-3 transition-colors duration-200`}
                   >
-                    <option value="kilometers">Kilometers</option>
-                    <option value="miles">Miles</option>
+                    <option value="meters">Meters</option>
+                    <option value="yards">Yards</option>
                   </select>
                 ) : (
                   <p className={`mt-1 capitalize ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>{preferences.distanceUnit}</p>
