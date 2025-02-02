@@ -10,7 +10,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 
 const ProfilePage: React.FC = () => {
   const { preferences, updatePreferences } = usePreferences();
-  const { isDark } = useTheme();
+  const { isDark, setDefaultTheme } = useTheme();
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingPreferences, setIsEditingPreferences] = useState(false);
   const [tempPreferences, setTempPreferences] = useState(preferences);
@@ -109,6 +109,8 @@ const ProfilePage: React.FC = () => {
     // Save preferences if they were being edited
     if (isEditingPreferences) {
       updatePreferences(tempPreferences);
+      // Update the theme default when preferences are saved
+      setDefaultTheme(tempPreferences.defaultTheme);
       setIsEditingPreferences(false);
     }
 
@@ -366,6 +368,24 @@ const ProfilePage: React.FC = () => {
                   </select>
                 ) : (
                   <p className={`mt-1 capitalize ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>{preferences.weekStart}</p>
+                )}
+              </div>
+              <div>
+                <label className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-200`}>Default Theme</label>
+                {isEditingPreferences ? (
+                  <select
+                    value={tempPreferences.defaultTheme}
+                    onChange={(e) => handlePreferenceChange('defaultTheme', e.target.value)}
+                    className={`mt-1 block w-full rounded-md border-2 ${
+                      isDark ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-gray-900'
+                    } shadow-sm focus:border-teal-500 focus:ring-teal-500 py-2 px-3 transition-colors duration-200`}
+                  >
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                    <option value="system">System</option>
+                  </select>
+                ) : (
+                  <p className={`mt-1 capitalize ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>{preferences.defaultTheme}</p>
                 )}
               </div>
             </div>

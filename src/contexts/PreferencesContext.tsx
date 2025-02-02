@@ -6,6 +6,7 @@ interface UserPreferences {
   distanceUnit: 'kilometers' | 'miles';
   timeFormat: '24h' | '12h';
   weekStart: 'monday' | 'sunday';
+  defaultTheme: 'light' | 'dark' | 'system';
 }
 
 interface PreferencesContextType {
@@ -16,7 +17,8 @@ interface PreferencesContextType {
 const defaultPreferences: UserPreferences = {
   distanceUnit: 'kilometers',
   timeFormat: '24h',
-  weekStart: 'monday'
+  weekStart: 'monday',
+  defaultTheme: 'system'
 };
 
 const PreferencesContext = createContext<PreferencesContextType | undefined>(undefined);
@@ -30,7 +32,8 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
     const mockUserPreferences = {
       distanceUnit: 'kilometers',
       timeFormat: '24h',
-      weekStart: 'monday'
+      weekStart: 'monday',
+      defaultTheme: 'system'
     } as UserPreferences;
 
     setPreferences(mockUserPreferences);

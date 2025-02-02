@@ -5,6 +5,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 interface ThemeContextType {
   isDark: boolean;
   toggleTheme: () => void;
+  setDefaultTheme: (theme: 'light' | 'dark' | 'system') => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -14,11 +15,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Check if there's a saved theme preference in localStorage
-    const savedTheme = localStorage.getItem('theme');
+    const savedTheme = localStorage.getItem('defaultTheme') || 'system';
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     
     // Use saved theme if exists, otherwise use system preference
-    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+    if (savedTheme === 'dark' || (savedTheme === 'system' && prefersDark)) {
       setIsDark(true);
       document.documentElement.classList.add('dark');
     } else {
@@ -36,14 +37,23 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   }, [isDark]);
 
+  const setDefaultTheme = (theme: 'light' | 'dark' | 'system') => {
+    localStorage.setItem('defaultTheme', theme);
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (theme === 'dark' || (theme === 'system' && prefersDark)) {
+      setIsDark(true);
+    } else {
+      setIsDark(false);
+    }
+  };
+
   const toggleTheme = () => {
     setIsDark(!isDark);
-    // Save theme preference to localStorage
-    localStorage.setItem('theme', !isDark ? 'dark' : 'light');
   };
 
   return (
-    <ThemeContext.Provider value={{ isDark, toggleTheme }}>
+    <ThemeContext.Provider value={{ isDark, toggleTheme, setDefaultTheme }}>
       {children}
     </ThemeContext.Provider>
   );
