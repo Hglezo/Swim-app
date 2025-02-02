@@ -1,9 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { FaSwimmer, FaChartLine, FaSignOutAlt, FaCalendarAlt, FaHome, FaSun, FaMoon } from 'react-icons/fa';
+import { FaSwimmer, FaChartLine, FaSignOutAlt, FaCalendarAlt, FaHome } from 'react-icons/fa';
 import { MdDashboard, MdAdd, MdPerson } from 'react-icons/md';
-import { ReactNode, useState } from 'react';
+import { ReactNode } from 'react';
+import { useTheme } from '@/contexts/ThemeContext';
+import ThemeToggle from '@/components/ThemeToggle';
 
 interface MetricCardProps {
   title: string;
@@ -14,11 +16,7 @@ interface MetricCardProps {
 }
 
 export default function Home() {
-  const [isDark, setIsDark] = useState(false);
-
-  const toggleTheme = () => {
-    setIsDark(!isDark);
-  };
+  const { isDark } = useTheme();
 
   return (
     <div className={`min-h-screen flex flex-col ${isDark ? 'dark bg-gray-900' : 'bg-white'}`}>
@@ -30,15 +28,8 @@ export default function Home() {
             <span className={`ml-2 text-xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>SwimTracker</span>
           </div>
           <div className="flex items-center space-x-6">
-            {/* Theme Toggle Button */}
-            <button
-              onClick={toggleTheme}
-              className={`p-2 rounded-full ${isDark ? 'bg-gray-700 text-yellow-400 hover:bg-gray-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'} transition-colors duration-200`}
-              aria-label="Toggle theme"
-            >
-              {isDark ? <FaSun className="h-5 w-5" /> : <FaMoon className="h-5 w-5" />}
-            </button>
-            <Link href="/" className={`${isDark ? 'text-gray-300 hover:text-teal-400' : 'text-gray-700 hover:text-teal-500'} transition-colors flex items-center`}>
+            <ThemeToggle />
+            <Link href="/" className={`${isDark ? 'text-teal-400' : 'text-teal-500'} transition-colors flex items-center`}>
               <FaHome className="h-5 w-5 mr-2" />
               Home
             </Link>
@@ -170,16 +161,16 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className={`${isDark ? 'bg-gray-800' : 'bg-gray-900'} text-white py-8 transition-colors duration-200`}>
+      <footer className={`${isDark ? 'bg-gray-800' : 'bg-gray-100'} py-8 transition-colors duration-200`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
-              <p>© 2024 SwimTracker, Inc. All rights reserved.</p>
+              <p className={`${isDark ? 'text-gray-300' : 'text-gray-800'}`}>© 2024 SwimTracker, Inc. All rights reserved.</p>
             </div>
             <div className="flex space-x-6">
-              <Link href="/about" className={`${isDark ? 'text-gray-400 hover:text-teal-400' : 'text-gray-700 hover:text-teal-400'}`}>About</Link>
-              <Link href="/contact" className={`${isDark ? 'text-gray-400 hover:text-teal-400' : 'text-gray-700 hover:text-teal-400'}`}>Contact</Link>
-              <Link href="/privacy" className={`${isDark ? 'text-gray-400 hover:text-teal-400' : 'text-gray-700 hover:text-teal-400'}`}>Privacy Policy</Link>
+              <Link href="/about" className={`${isDark ? 'text-gray-300 hover:text-teal-400' : 'text-gray-800 hover:text-teal-600'}`}>About</Link>
+              <Link href="/contact" className={`${isDark ? 'text-gray-300 hover:text-teal-400' : 'text-gray-800 hover:text-teal-600'}`}>Contact</Link>
+              <Link href="/privacy" className={`${isDark ? 'text-gray-300 hover:text-teal-400' : 'text-gray-800 hover:text-teal-600'}`}>Privacy Policy</Link>
             </div>
           </div>
         </div>
