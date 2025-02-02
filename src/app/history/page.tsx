@@ -1398,9 +1398,9 @@ const HistoryPage = () => {
       {/* Header */}
       <header className={`${isDark ? 'bg-gray-800' : 'bg-white'} shadow-sm transition-colors duration-200`}>
         <nav className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center hover:text-teal-500 transition-colors">
+          <Link href="/" className="flex items-center hover:text-teal-500 transition-colors cursor-pointer">
             <FaSwimmer className="h-8 w-8 text-teal-500" />
-            <span className={`ml-2 text-xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'} transition-colors duration-200`}>SwimTracker</span>
+            <span className={`ml-2 text-xl font-semibold ${isDark ? 'text-white hover:text-teal-400' : 'text-gray-900 hover:text-teal-600'} transition-colors duration-200`}>SwimTracker</span>
           </Link>
           <div className="flex items-center space-x-6">
             <Link href="/" className={`${isDark ? 'text-gray-300 hover:text-teal-400' : 'text-gray-700 hover:text-teal-500'} transition-colors flex items-center`}>
