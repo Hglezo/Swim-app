@@ -129,6 +129,8 @@ const WorkoutDetailModal = ({
 
       setIsParsingWorkout(true);
       setParseError(null);
+
+      // Use the same API endpoint as the write-workout page
       const response = await fetch('/api/parse-workout', {
         method: 'POST',
         headers: {
@@ -141,20 +143,28 @@ const WorkoutDetailModal = ({
         }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error('Failed to parse workout');
+        throw new Error(data.error || 'Failed to parse workout');
       }
 
-      const data = await response.json();
       const newSummary = {
         totalDistance: data.totalDistance,
-        strokeDistances: data.strokeDistances,
+        strokeDistances: {
+          freestyle: data.strokeDistances?.freestyle || 0,
+          backstroke: data.strokeDistances?.backstroke || 0,
+          breaststroke: data.strokeDistances?.breaststroke || 0,
+          butterfly: data.strokeDistances?.butterfly || 0,
+          im: data.strokeDistances?.im || 0,
+          choice: data.strokeDistances?.choice || 0
+        },
         intensityDistances: data.intensityDistances || {}
       };
       setCurrentSummary(newSummary);
       
       // Update the workout in the calendar view immediately
-      if (workout.id) { // Only update if it's an existing workout
+      if (workout.id) {
         updateWorkoutInPlace(workout.date, workout.id, text, newSummary);
       }
     } catch (error) {
