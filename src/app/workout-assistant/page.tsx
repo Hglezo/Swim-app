@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { use, useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { FaSwimmer, FaChartLine, FaSignOutAlt, FaCalendarAlt, FaHome, FaPaperPlane, FaLightbulb, FaSave, FaCalculator, FaHeart, FaVideo } from 'react-icons/fa';
 import { MdDashboard, MdPerson, MdContentCopy, MdTimer } from 'react-icons/md';
@@ -35,7 +35,14 @@ interface Tool {
   action: () => void;
 }
 
-export default function WorkoutAssistant() {
+type PageProps = {
+  params?: Promise<Record<string, string | string[]>>;
+  searchParams?: Promise<Record<string, string | string[]>>;
+};
+
+export default function WorkoutAssistant(props: PageProps) {
+  if (props.params != null) use(props.params);
+  if (props.searchParams != null) use(props.searchParams);
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const [messages, setMessages] = useState<Message[]>([

@@ -1,11 +1,17 @@
 'use client';
 
+import { use } from 'react';
 import Link from 'next/link';
 import { FaSwimmer, FaChartLine, FaSignOutAlt, FaCalendarAlt, FaHome, FaClock, FaTrophy, FaFire } from 'react-icons/fa';
 import { MdDashboard, MdPerson } from 'react-icons/md';
 import React from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
 import ThemeToggle from '@/components/ThemeToggle';
+
+type PageProps = {
+  params?: Promise<Record<string, string | string[]>>;
+  searchParams?: Promise<Record<string, string | string[]>>;
+};
 
 interface Workout {
   count: number;
@@ -89,7 +95,9 @@ const formatDuration = (minutes: number): string => {
   return hours > 0 ? `${hours}h ${remainingMinutes}m` : `${remainingMinutes}m`;
 };
 
-const DashboardPage: React.FC = () => {
+const DashboardPage: React.FC<PageProps> = (props) => {
+  if (props.params != null) use(props.params);
+  if (props.searchParams != null) use(props.searchParams);
   const { isDark } = useTheme();
   const currentDate = new Date();
 

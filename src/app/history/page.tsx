@@ -1,5 +1,6 @@
 "use client";
 
+import { use } from 'react';
 import Link from 'next/link';
 import { FaSwimmer, FaArrowLeft, FaArrowRight, FaHome, FaCalendarAlt, FaChartLine, FaSignOutAlt, FaClock, FaTrash, FaTimes, FaEdit } from 'react-icons/fa';
 import { MdDashboard, MdPerson } from 'react-icons/md';
@@ -524,7 +525,14 @@ const ExpandableWorkout = ({
   );
 };
 
-const HistoryPage = () => {
+type PageProps = {
+  params?: Promise<Record<string, string | string[]>>;
+  searchParams?: Promise<Record<string, string | string[]>>;
+};
+
+const HistoryPage = (props: PageProps) => {
+  if (props.params != null) use(props.params);
+  if (props.searchParams != null) use(props.searchParams);
   const { preferences } = usePreferences();
   const { isDark } = useTheme();
   const [view, setView] = useState<CalendarView>('month');

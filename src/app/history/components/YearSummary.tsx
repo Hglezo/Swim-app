@@ -11,8 +11,6 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis } from '@/components/ui/bar-chart';
-
 ChartJS.register(
   CategoryScale,
   LinearScale,

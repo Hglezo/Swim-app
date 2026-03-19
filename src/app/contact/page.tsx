@@ -1,12 +1,20 @@
 'use client';
 
+import { use } from 'react';
 import Link from 'next/link';
 import { FaSwimmer, FaChartLine, FaSignOutAlt, FaCalendarAlt, FaHome, FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
 import { MdDashboard, MdPerson } from 'react-icons/md';
 import { useTheme } from '@/contexts/ThemeContext';
 import ThemeToggle from '@/components/ThemeToggle';
 
-export default function Contact() {
+type PageProps = {
+  params?: Promise<Record<string, string | string[]>>;
+  searchParams?: Promise<Record<string, string | string[]>>;
+};
+
+export default function Contact(props: PageProps) {
+  if (props.params != null) use(props.params);
+  if (props.searchParams != null) use(props.searchParams);
   const { isDark } = useTheme();
 
   return (

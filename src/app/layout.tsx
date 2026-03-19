@@ -7,11 +7,21 @@ const inter = Inter({ subsets: ['latin'] });
 
 export { metadata, viewport };
 
-export default function RootLayout({
-  children,
-}: {
+type LayoutProps = {
   children: React.ReactNode;
-}) {
+  params?: Promise<Record<string, string | string[]>>;
+  searchParams?: Promise<Record<string, string | string[]>>;
+};
+
+export default async function RootLayout({
+  children,
+  params,
+  searchParams,
+}: LayoutProps) {
+  await Promise.all([
+    params ?? Promise.resolve({}),
+    searchParams ?? Promise.resolve({}),
+  ]);
   return (
     <html lang="en">
       <head>

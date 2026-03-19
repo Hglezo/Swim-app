@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { use, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FaSwimmer, FaEnvelope, FaLock, FaUser } from 'react-icons/fa';
@@ -34,7 +34,14 @@ const isValidEmail = (email: string): boolean => {
   return emailRegex.test(email);
 };
 
-export default function RegisterPage() {
+type PageProps = {
+  params?: Promise<Record<string, string | string[]>>;
+  searchParams?: Promise<Record<string, string | string[]>>;
+};
+
+export default function RegisterPage(props: PageProps) {
+  if (props.params != null) use(props.params);
+  if (props.searchParams != null) use(props.searchParams);
   const router = useRouter();
   const { isDark } = useTheme();
   const [formData, setFormData] = useState({

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { use, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FaSwimmer, FaEnvelope, FaLock } from 'react-icons/fa';
@@ -34,7 +34,14 @@ function useDebounce<T>(value: T, delay: number): T {
   return debouncedValue;
 }
 
-export default function LoginPage() {
+type PageProps = {
+  params?: Promise<Record<string, string | string[]>>;
+  searchParams?: Promise<Record<string, string | string[]>>;
+};
+
+export default function LoginPage(props: PageProps) {
+  if (props.params != null) use(props.params);
+  if (props.searchParams != null) use(props.searchParams);
   const router = useRouter();
   const { isDark } = useTheme();
   const [formData, setFormData] = useState({

@@ -1,5 +1,6 @@
 'use client';
 
+import { use } from 'react';
 import Link from 'next/link';
 import { FaSwimmer, FaChartLine, FaSignOutAlt, FaCalendarAlt, FaHome, FaEdit, FaCog, FaMedal, FaCheck, FaTimes, FaExclamationTriangle } from 'react-icons/fa';
 import { MdDashboard, MdPerson } from 'react-icons/md';
@@ -8,7 +9,14 @@ import { usePreferences } from '@/contexts/PreferencesContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import ThemeToggle from '@/components/ThemeToggle';
 
-const ProfilePage: React.FC = () => {
+type PageProps = {
+  params?: Promise<Record<string, string | string[]>>;
+  searchParams?: Promise<Record<string, string | string[]>>;
+};
+
+const ProfilePage: React.FC<PageProps> = (props) => {
+  if (props.params != null) use(props.params);
+  if (props.searchParams != null) use(props.searchParams);
   const { preferences, updatePreferences } = usePreferences();
   const { isDark, setDefaultTheme } = useTheme();
   const [isEditing, setIsEditing] = useState(false);

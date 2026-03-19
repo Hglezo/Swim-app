@@ -1,12 +1,20 @@
 'use client';
 
+import { use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { FaExclamationTriangle, FaArrowLeft, FaSwimmer } from 'react-icons/fa';
 import ThemeToggle from '@/components/ThemeToggle';
 
-const DeleteAccountPage = () => {
+type PageProps = {
+  params?: Promise<Record<string, string | string[]>>;
+  searchParams?: Promise<Record<string, string | string[]>>;
+};
+
+const DeleteAccountPage = (props: PageProps) => {
+  if (props.params != null) use(props.params);
+  if (props.searchParams != null) use(props.searchParams);
   const router = useRouter();
   const [confirmText, setConfirmText] = useState('');
   const [showFinalWarning, setShowFinalWarning] = useState(false);

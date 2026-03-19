@@ -1,12 +1,20 @@
 'use client';
 
+import { use } from 'react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { FaSwimmer } from 'react-icons/fa';
 import { useTheme } from '@/contexts/ThemeContext';
 import ThemeToggle from '@/components/ThemeToggle';
 
-export default function LogoutPage() {
+type PageProps = {
+  params?: Promise<Record<string, string | string[]>>;
+  searchParams?: Promise<Record<string, string | string[]>>;
+};
+
+export default function LogoutPage(props: PageProps) {
+  if (props.params != null) use(props.params);
+  if (props.searchParams != null) use(props.searchParams);
   const router = useRouter();
   const [countdown, setCountdown] = useState(10);
   const { isDark } = useTheme();

@@ -1,5 +1,6 @@
 'use client';
 
+import { use } from 'react';
 import Link from 'next/link';
 import { FaSwimmer, FaChartLine, FaSignOutAlt, FaCalendarAlt, FaHome, FaArrowUp, FaArrowDown, FaMinus } from 'react-icons/fa';
 import { MdDashboard, MdPerson } from 'react-icons/md';
@@ -7,7 +8,14 @@ import React from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
 import ThemeToggle from '@/components/ThemeToggle';
 
-const InsightsPage: React.FC = () => {
+type PageProps = {
+  params?: Promise<Record<string, string | string[]>>;
+  searchParams?: Promise<Record<string, string | string[]>>;
+};
+
+const InsightsPage: React.FC<PageProps> = (props) => {
+  if (props.params != null) use(props.params);
+  if (props.searchParams != null) use(props.searchParams);
   const { isDark } = useTheme();
 
   // Mock data for trends

@@ -1,5 +1,6 @@
 'use client';
 
+import { use } from 'react';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { FaSwimmer, FaChartLine, FaSignOutAlt, FaCalendarAlt, FaHome, FaMagic } from 'react-icons/fa';
@@ -42,7 +43,14 @@ interface ParsedSet {
   strokeDistances?: { [key: string]: number };
 }
 
-export default function WriteWorkout() {
+type PageProps = {
+  params?: Promise<Record<string, string | string[]>>;
+  searchParams?: Promise<Record<string, string | string[]>>;
+};
+
+export default function WriteWorkout(props: PageProps) {
+  if (props.params != null) use(props.params);
+  if (props.searchParams != null) use(props.searchParams);
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   // State for pool type and workout text
